@@ -23,8 +23,8 @@
 
 한국 현대미술을 대표하는 **김창열(Kim Tschang-yeul)** 작가님의 물방울·신문 바탕에 대한 작업을 오래 존경해 왔고, 그 **시각적 연상**을 브라우저에서 조금이라도 나누고 싶어 비공식으로 작은 페이지를 만들었습니다.
 
-- **라이브 체험 주소:** **https://jhunj.github.io/kimchang/**  
-- **소스 코드:** https://github.com/JhunJ/kimchang  
+- **라이브 체험 주소:** **[https://jhunj.github.io/kimchang/](https://jhunj.github.io/kimchang/)**  
+- **소스 코드:** [https://github.com/JhunJ/kimchang](https://github.com/JhunJ/kimchang)  
 - **성격:** 작가님·미술관과 **공식 협력이나 위촉 없이** 만든 **무료·비상업적** 개인 실험입니다. 실제 회화의 재질·전시 맥락을 대체하려는 것이 아니라, 방문자분들께 **디지털로 한 번 더 다가가는 보조 수단**이 되면 하는 마음입니다.
 
 미술관 교육·홍보, 혹은 전시 연계 안내 등에 **필요하시다면 링크를 자유롭게 인용**해 주셔도 됩니다. 별도의 사용료는 없으며, **원치 않으시면 언제든 말씀해 주시면 공개 범위를 조정**하겠습니다.
@@ -45,7 +45,7 @@
 
 **김창열** 작가의 물방울 회화에 감명을 받아, 신문 질감 위의 물방울 굴절을 **WebGL**로 구현한 **비공식 웹 데모**를 공유드립니다.
 
-- **체험 URL:** **https://jhunj.github.io/kimchang/**  
+- **체험 URL:** **[https://jhunj.github.io/kimchang/](https://jhunj.github.io/kimchang/)**
 
 전시 홍보 페이지·QR 안내·교육 자료 등에 **무료로 활용**하셔도 됩니다(상업적 판매 목적의 2차 가공 등은 사전 협의를 부탁드립니다). 공식 협력 관계는 아니며, **저작권·상표에 관한 귀 기관의 지침**을 우선합니다.
 
@@ -58,7 +58,7 @@
 ## C. 재단·저작권·유가족 측 연락처가 있으신 경우 (짧은 버전)
 
 존경하는 김창열 작가의 물방울·신문 미학을 참고한 **개인 웹 프로젝트**를 공유드립니다.  
-**https://jhunj.github.io/kimchang/** — 비상업·비공식이며, **무료로 필요 시 링크만 인용**해 주셔도 됩니다. 사용에 불편이 있으시면 알려 주시면 조치하겠습니다.
+**[https://jhunj.github.io/kimchang/](https://jhunj.github.io/kimchang/)** — 비상업·비공식이며, **무료로 필요 시 링크만 인용**해 주셔도 됩니다. 사용에 불편이 있으시면 알려 주시면 조치하겠습니다.
 
 ---
 
@@ -68,8 +68,8 @@ Dear team,
 
 I am an independent developer who deeply admires the work of **Kim Tschang-yeul**. I created a small, **non-official, non-commercial** WebGL experiment that echoes his water drops on newspaper-like text:
 
-**Live demo:** **https://jhunj.github.io/kimchang/**  
-**Source:** https://github.com/JhunJ/kimchang
+**Live demo:** **[https://jhunj.github.io/kimchang/](https://jhunj.github.io/kimchang/)**  
+**Source:** [https://github.com/JhunJ/kimchang](https://github.com/JhunJ/kimchang)
 
 If it is ever useful for education, outreach, or exhibition context, you are welcome to link to it **free of charge**. It is not affiliated with the estate or museums; if any use is inappropriate, please let me know and I will adjust.
 
@@ -82,3 +82,4 @@ With respect,
 
 - 제주 김창열 미술관 대표 전화(안내 기준): **064-710-4150** (공식 이메일은 홈페이지 **문의·찾아오시는 길** 등을 확인해 주세요.)
 - 본 메일은 **법적 효력이 있는 허가 문서가 아닙니다.** 기관에서 공식 협업·라이선스가 필요하면 별도 절차를 밟아 주세요.
+
