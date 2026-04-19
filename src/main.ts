@@ -30,6 +30,7 @@ import {
   renderNewspaperTexture,
 } from './newspaper'
 import { WetTrail } from './wetTrail'
+import { attachGuideSelfTest } from './guideSelfTest'
 
 const VERT = `
 attribute vec2 a_pos;
@@ -630,6 +631,8 @@ function main() {
       wet.clear()
     }, 120)
   })
+
+  attachGuideSelfTest()
 }
 
 main()

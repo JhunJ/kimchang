@@ -3,7 +3,54 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>김창열 물방울 — Pretext + WebGL</title>
+    <title>
+      김창열 물방울 아트 — 신문·굴절 WebGL 인터랙션 | Kim Tschang-yeul homage
+    </title>
+    <meta
+      name="description"
+      content="한국 현대미술가 김창열(Kim Tschang-yeul)의 물방울·신문 작업을 참고한 웹 인터랙션. 신문 질감 위에 WebGL 물방울 굴절, 다중 방울 선택·이동, 젖은 자국. 사용법·작가 소개·관련 링크."
+    />
+    <meta
+      name="keywords"
+      content="김창열, Kim Tschang-yeul, 김창열 아트, 물방울, 현대미술, 한국 미술, 웹 아트, 인터랙티브 아트, WebGL, 굴절, 신문, 디지털 아트, 물방울 그림"
+    />
+    <meta name="author" content="kimchang web demo" />
+    <meta name="robots" content="index, follow" />
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:title"
+      content="김창열 물방울 아트 — 신문·굴절 WebGL 인터랙션"
+    />
+    <meta
+      property="og:description"
+      content="김창열 작가의 물방울·신문 미학을 참고한 브라우저 데모. 신문 텍스트 위 물방울 굴절과 다중 방울 조작."
+    />
+    <meta property="og:locale" content="ko_KR" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="김창열 물방울 아트 — WebGL 인터랙션"
+    />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "김창열 물방울 웹 인터랙션",
+        "alternateName": "Kim Tschang-yeul water droplet web demo",
+        "description": "신문 질감 배경 위에 WebGL로 그리는 물방울 굴절·다중 방울 조작. 한국 현대미술가 김창열(Kim Tschang-yeul)의 물방울·신문 작업을 오마주한 비공식 웹 데모.",
+        "applicationCategory": "ArtApplication",
+        "operatingSystem": "Any",
+        "browserRequirements": "Requires JavaScript, WebGL",
+        "keywords": "김창열, Kim Tschang-yeul, 물방울, 현대미술, 아트, WebGL, 인터랙티브",
+        "inLanguage": "ko-KR",
+        "about": {
+          "@type": "Person",
+          "name": "김창열",
+          "alternateName": ["Kim Tschang-yeul", "Kim Chang-Yeul"],
+          "description": "물방울 회화로 국제적으로 알려진 한국계 현대 미술가(1929–2021)."
+        }
+      }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -14,20 +61,74 @@
       * {
         box-sizing: border-box;
       }
-      html,
+      html {
+        scroll-behavior: smooth;
+      }
       body {
         margin: 0;
         width: 100%;
-        height: 100%;
+        min-height: 100%;
         background: #1a1814;
-        overflow: hidden;
+        overflow-x: hidden;
+        overflow-y: auto;
+        color: #e8e4dc;
+        font-family:
+          system-ui,
+          -apple-system,
+          sans-serif;
+      }
+      a {
+        color: #c4b896;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+      a:hover {
+        color: #e8dfc8;
+      }
+      .skip-link {
+        position: absolute;
+        left: -9999px;
+        z-index: 100;
+        padding: 8px 12px;
+        background: #2a2620;
+        color: #fff;
+      }
+      .skip-link:focus {
+        left: 12px;
+        top: 12px;
+      }
+      .site-header {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 16px 14px 12px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+      }
+      .site-header h1 {
+        margin: 0 0 8px;
+        font-size: clamp(1.15rem, 2.8vw, 1.45rem);
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        line-height: 1.35;
+        font-family: 'Noto Serif KR', serif;
+      }
+      .site-header .lede {
+        margin: 0;
+        font-size: 0.92rem;
+        line-height: 1.55;
+        color: rgba(255, 255, 255, 0.62);
+      }
+      .site-header .meta-keywords {
+        margin: 10px 0 0;
+        font-size: 0.75rem;
+        line-height: 1.45;
+        color: rgba(255, 255, 255, 0.38);
       }
       #app {
         width: 100%;
-        height: 100%;
         display: flex;
         flex-direction: column;
         gap: 0;
+        min-height: 0;
       }
       canvas {
         display: block;
@@ -37,10 +138,15 @@
       }
       .stage {
         flex: 1;
-        min-height: 0;
+        min-height: min(52vh, 720px);
         display: flex;
         align-items: center;
         justify-content: center;
+        background: radial-gradient(
+          ellipse at 50% 30%,
+          #252018 0%,
+          #141210 65%
+        );
       }
       .bg-editor {
         flex-shrink: 0;
@@ -54,9 +160,7 @@
       }
       .bg-editor label {
         display: block;
-        font:
-          13px/1.4 system-ui,
-          sans-serif;
+        font: 13px/1.4 system-ui, sans-serif;
         color: rgba(255, 255, 255, 0.72);
         margin-bottom: 6px;
       }
@@ -67,7 +171,7 @@
         resize: vertical;
         padding: 10px 12px;
         font:
-          14px/1.45 "Noto Serif KR",
+          14px/1.45 'Noto Serif KR',
           serif;
         color: #e8e4dc;
         background: rgba(0, 0, 0, 0.35);
@@ -79,9 +183,7 @@
         border-color: rgba(180, 160, 120, 0.45);
       }
       .bg-editor .hint {
-        font:
-          11px/1.35 system-ui,
-          sans-serif;
+        font: 11px/1.35 system-ui, sans-serif;
         color: rgba(255, 255, 255, 0.38);
         margin-top: 6px;
       }
@@ -114,12 +216,154 @@
         color: rgba(255, 255, 255, 0.55);
         text-align: right;
       }
+      .guide {
+        max-width: 820px;
+        margin: 0 auto;
+        padding: 28px 16px 48px;
+        font-size: 0.94rem;
+        line-height: 1.65;
+        color: rgba(255, 255, 255, 0.82);
+      }
+      .guide h2 {
+        font-family: 'Noto Serif KR', serif;
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin: 32px 0 12px;
+        color: #f0ebe3;
+        scroll-margin-top: 12px;
+      }
+      .guide h2:first-of-type {
+        margin-top: 0;
+      }
+      .guide h3 {
+        font-size: 1.02rem;
+        font-weight: 600;
+        margin: 22px 0 10px;
+        color: rgba(255, 255, 255, 0.92);
+        scroll-margin-top: 12px;
+      }
+      .guide p {
+        margin: 0 0 12px;
+      }
+      .guide ul,
+      .guide ol {
+        margin: 0 0 14px;
+        padding-left: 1.35em;
+      }
+      .guide li {
+        margin-bottom: 8px;
+      }
+      .guide .guide-toc {
+        padding: 14px 16px;
+        background: rgba(0, 0, 0, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        margin-bottom: 8px;
+      }
+      .guide .guide-toc ol {
+        margin: 8px 0 0;
+        padding-left: 1.2em;
+      }
+      .guide .note {
+        font-size: 0.88rem;
+        color: rgba(255, 255, 255, 0.52);
+        padding: 10px 12px;
+        background: rgba(180, 140, 80, 0.08);
+        border-left: 3px solid rgba(180, 160, 120, 0.45);
+        border-radius: 0 6px 6px 0;
+        margin: 14px 0;
+      }
+      .guide table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.88rem;
+        margin: 12px 0 18px;
+      }
+      .guide th,
+      .guide td {
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 10px 12px;
+        text-align: left;
+        vertical-align: top;
+      }
+      .guide th {
+        background: rgba(0, 0, 0, 0.35);
+        color: rgba(255, 255, 255, 0.88);
+      }
+      .self-test-box {
+        padding: 16px;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        margin-top: 12px;
+      }
+      .self-test-box button {
+        font: inherit;
+        padding: 10px 16px;
+        border-radius: 8px;
+        border: 1px solid rgba(180, 160, 120, 0.5);
+        background: rgba(180, 160, 120, 0.15);
+        color: #f0ebe3;
+        cursor: pointer;
+      }
+      .self-test-box button:hover {
+        background: rgba(180, 160, 120, 0.28);
+      }
+      .self-test-box button:focus-visible {
+        outline: 2px solid rgba(200, 180, 140, 0.8);
+        outline-offset: 2px;
+      }
+      #self-test-result {
+        margin-top: 14px;
+      }
+      .self-test-summary {
+        margin: 0 0 10px;
+        font-weight: 500;
+      }
+      .self-test-ok {
+        color: #a8d4a8;
+      }
+      .self-test-fail {
+        color: #e8a0a0;
+      }
+      .self-test-list {
+        margin: 0;
+        padding-left: 1.2em;
+      }
+      .self-test-list li {
+        margin-bottom: 6px;
+      }
+      .self-test-mark {
+        font-size: 0.8em;
+        font-weight: 600;
+        margin-right: 6px;
+      }
     </style>
   </head>
   <body>
+    <a class="skip-link" href="#guide">안내·김창열 소개로 건너뛰기</a>
+    <header class="site-header">
+      <h1>김창열 물방울 아트 — 신문 위 디지털 굴절 (WebGL)</h1>
+      <p class="lede">
+        브라우저에서 신문 질감 배경과 물방울 굴절을 실시간으로 조작하는
+        <strong>인터랙티브 아트</strong> 데모입니다. 한국
+        <strong>현대미술</strong>에서 물방울 회화로 세계적으로 알려진
+        <span itemscope itemtype="https://schema.org/Person"
+          ><span itemprop="name">김창열</span> (<span itemprop="alternateName"
+            >Kim Tschang-yeul</span
+          >, 1929–2021)</span
+        >
+        작가의 미학을 참고했으며, 공식 작품이 아닌 개인 제작 웹 프로젝트입니다.
+      </p>
+      <p class="meta-keywords" aria-hidden="true">
+        검색·분류용 키워드: 김창열, Kim Tschang-yeul, 물방울 아트, 현대미술,
+        웹아트, WebGL, 인터랙티브, 굴절, 신문 텍스트.
+      </p>
+    </header>
+
     <div id="app">
-      <div id="stage" class="stage"></div>
-      <div class="bg-editor">
+      <div id="stage" class="stage" role="img" aria-label="물방울이 신문 위에 올라간 WebGL 캔버스"></div>
+      <div class="bg-editor" aria-label="신문 본문 및 물방울 설정">
         <label for="bg-text">뒤쪽 신문 글자 (굴절·물방울 효과에 그대로 반영)</label>
         <textarea
           id="bg-text"
@@ -175,11 +419,189 @@
           <span id="drop-count-val" class="font-size-val">1개</span>
         </div>
         <p class="hint">
-          본문·글자 크기·물방울 크기·개수는 이 브라우저에 저장됩니다. 공백·줄바꿈은 배치
-          시 무시되고, 기존과 같은 종단·농담 효과로 그려집니다.
+          본문·글자 크기·물방울 크기·개수는 이 브라우저에 저장됩니다. 공백·줄바꿈은
+          배치 시 무시되고, 기존과 같은 종단·농담 효과로 그려집니다.
         </p>
       </div>
     </div>
+
+    <article class="guide" id="guide" lang="ko">
+      <nav class="guide-toc" aria-label="안내 목차">
+        <strong>목차</strong>
+        <ol>
+          <li><a href="#guide-about">이 프로그램이 하는 일</a></li>
+          <li><a href="#guide-screen">화면 구성</a></li>
+          <li><a href="#guide-modes">경우별 조작·화면</a></li>
+          <li><a href="#guide-art">김창열 아트와의 관계</a></li>
+          <li><a href="#guide-links">관련 링크</a></li>
+          <li><a href="#guide-test">실행 환경 점검</a></li>
+        </ol>
+      </nav>
+
+      <h2 id="guide-about">이 프로그램이 하는 일</h2>
+      <p>
+        이 웹앱은 <strong>신문·잡지 같은 질감의 텍스트</strong>를 배경으로 깔고,
+        그 위를 <strong>WebGL 셰이더</strong>로 그린 물방울이 빛·굴절을 일으키는
+        장면을 보여 줍니다. 물방울이 지나간 자리에는
+        <strong>젖은 흔적</strong>이 남도록 처리되어, 정지해 있을 때도
+        아주 미세하게 흔들리는 듯한 움직임이 더해져 있습니다.
+      </p>
+      <p>
+        글자는 <strong>@chenglou/pretext</strong> 계열 레이아웃으로 단(段)을 나누
+        신문 느낌으로 배치되며, 물방울 안에서는 배경 글자가 색수차가 나는 듯
+        굴절되어 보입니다. 물방울 개수를 늘리면
+        <strong>기존 방울 위치는 유지</strong>되고, 빈 곳에만 새 방울이
+        생깁니다.
+      </p>
+
+      <h2 id="guide-screen">화면 구성</h2>
+      <ul>
+        <li>
+          <strong>위쪽 큰 영역</strong>: 물방울이 올라간
+          <strong>캔버스</strong>. 여기서 드래그·탭으로 방울을 움직입니다.
+        </li>
+        <li>
+          <strong>아래 편집 패널</strong>: 신문에 넣을
+          <strong>본문</strong>, <strong>글자 크기</strong>,
+          <strong>물방울 크기</strong>, <strong>물방울 개수</strong> 슬라이더.
+        </li>
+        <li>
+          <strong>이 안내 문서</strong>(스크롤): 프로그램 설명,
+          <strong>김창열</strong> 작가 소개, 링크, 아래쪽
+          <strong>실행 점검</strong> 버튼.
+        </li>
+      </ul>
+
+      <h2 id="guide-modes">경우별 조작·화면</h2>
+      <p>
+        아래 표는 <strong>물방울 개수</strong>와
+        <strong>선택 상태</strong>에 따라 달라지는 조작을 정리한 것입니다. 같은
+        화면에서 직접 바꿔 가며 비교해 보세요.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">상황</th>
+            <th scope="col">캔버스에서의 동작</th>
+            <th scope="col">보이는 차이</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>물방울 <strong>1개</strong></td>
+            <td>
+              누른 채 <strong>드래그</strong>하면 물방울 목표가 손가락을
+              따라갑니다. 끌지 않고 짧게 눌러도 그 지점으로 이동합니다.
+            </td>
+            <td>한 덩어리 굴절만 보이며, 움직일 때 젖은 자국이 이어집니다.</td>
+          </tr>
+          <tr>
+            <td>물방울 <strong>2개 이상</strong>, 아직 아무것도 선택 안 함</td>
+            <td>
+              <strong>방울을 탭</strong>하면 그 방울이 선택되고 가장자리가 살짝
+              강조됩니다. <strong>빈 곳</strong>을 탭해도 이동하지 않습니다.
+            </td>
+            <td>선택된 방울만 은은한 링·밝기 강조.</td>
+          </tr>
+          <tr>
+            <td>한 방울 <strong>선택된 상태</strong></td>
+            <td>
+              <strong>빈 화면</strong>을 탭하면 <strong>선택된 방울만</strong> 그
+              쪽으로 이동합니다. 다른 방울은 그대로입니다.
+            </td>
+            <td>선택된 방울만 목표를 바꿉니다.</td>
+          </tr>
+          <tr>
+            <td>선택된 방울을 <strong>다시 탭</strong></td>
+            <td>선택 강조가 꺼지고, 모든 방울이 같은 기본 톤으로 보입니다.</td>
+            <td>하이라이트 없음.</td>
+          </tr>
+          <tr>
+            <td><strong>개수 슬라이더</strong>로 늘리기</td>
+            <td>—</td>
+            <td>
+              이미 있던 방울은 <strong>제자리</strong>, 새 방울만
+              <strong>겹치지 않게</strong> 빈 곳에 추가됩니다.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="note">
+        슬라이더 줄에서 <strong>마우스 휠</strong>로도 글자 크기·물방울 크기·개수를
+        미세 조정할 수 있습니다. 설정은 브라우저 <code>localStorage</code>에
+        저장됩니다.
+      </p>
+
+      <h2 id="guide-art">김창열 아트와의 관계</h2>
+      <p>
+        <strong>김창열</strong>(영문 표기로는 흔히
+        <strong>Kim Tschang-yeul</strong> 등)은 1970년대부터
+        <strong>물방울</strong>을 반복·정교하게 그리며 국제적으로 알려진
+        <strong>한국계 현대미술가</strong>입니다. 신문 기사, 한자, 서예 등
+        <strong>텍스트가 있는 바탕</strong> 위에 맑은 물방울을 올린 작업은 그의
+        대표적인 화풍으로, 물·빛·글자가 겹치는 순간을 회화로 고정한
+        <strong>아트</strong>로 이해할 수 있습니다.
+      </p>
+      <p>
+        본 사이트는 그런 시각 경험을 <strong>웹·WebGL</strong>로
+        <strong>대략적으로 연상</strong>시키기 위한 비공식 실험입니다. 재질감,
+        붓터치, 전시 공간의 스케일은 실제 회화와 다르며,
+        <strong>작가나 유족·미술관과 공식 협력 관계는 없습니다.</strong>
+      </p>
+
+      <h2 id="guide-links">관련 링크 (김창열 · 물방울 아트 · 자료)</h2>
+      <ul>
+        <li>
+          <a
+            href="https://ko.wikipedia.org/wiki/%EA%B9%80%EC%B0%BD%EC%97%B4_(%ED%99%94%EA%B0%80)"
+            rel="noopener noreferrer"
+            >한국어 위키백과 — 김창열 (화가)</a
+          >
+        </li>
+        <li>
+          <a
+            href="https://en.wikipedia.org/wiki/Kim_Tschang-yeul"
+            rel="noopener noreferrer"
+            >English Wikipedia — Kim Tschang-yeul</a
+          >
+        </li>
+        <li>
+          <a
+            href="https://kimtschang-yeul.jeju.go.kr/"
+            rel="noopener noreferrer"
+            >김창열 미술관 (제주) 공식 사이트</a
+          >
+          — 작가를 기리는 제주의 기관입니다.
+        </li>
+        <li>
+          <a
+            href="https://www.mmca.go.kr/"
+            rel="noopener noreferrer"
+            >국립현대미술관 MMCA</a
+          >
+          — 국내 현대미술 소장·전시 검색에 활용할 수 있습니다.
+        </li>
+      </ul>
+      <p class="note">
+        이 프로젝트 소스:
+        <a href="https://github.com/JhunJ/kimchang" rel="noopener noreferrer"
+          >GitHub — JhunJ/kimchang</a
+        >
+      </p>
+
+      <h2 id="guide-test">실행 환경 점검 (이 페이지에서 테스트)</h2>
+      <p>
+        아래 버튼은 이 브라우저에서 <strong>캔버스·WebGL·저장소</strong> 등이
+        준비되었는지 빠르게 확인합니다. 통과 후에는
+        <strong>위쪽 캔버스</strong>와 <strong>슬라이더</strong>로 위 표의
+        경우들을 직접 시험해 보시면 됩니다.
+      </p>
+      <div class="self-test-box">
+        <button type="button" id="self-test-run">실행 환경 점검하기</button>
+        <div id="self-test-result" role="status" aria-live="polite"></div>
+      </div>
+    </article>
+
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
