@@ -1,27 +1,27 @@
 # 김창열 물방울 — 신문 위 WebGL 인터랙션
 
+## 라이브 체험 (먼저 눌러 보세요)
+
+### **https://jhunj.github.io/kimchang/**
+
+위 주소에서 **설치 없이** 브라우저만으로 동작합니다. (모바일·PC)
+
+[![라이브 데모 열기](https://img.shields.io/badge/체험하기-jhunj.github.io/kimchang-2ea043?style=for-the-badge&logo=githubpages&logoColor=white)](https://jhunj.github.io/kimchang/)
+
 [![GitHub Pages 배포](https://github.com/JhunJ/kimchang/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/JhunJ/kimchang/actions/workflows/deploy-pages.yml)
-[![Pages 체험](https://img.shields.io/badge/라이브_데모-jhunj.github.io-2ea043?logo=githubpages)](https://jhunj.github.io/kimchang/)
-[![저장소](https://img.shields.io/badge/소스-GitHub-181717?logo=github)](https://github.com/JhunJ/kimchang)
-
-브라우저에서 **신문 질감 텍스트**를 배경으로 깔고, 그 위를 **WebGL**로 그린 **물방울**이 굴절·빛을 내는 인터랙티브 데모입니다. 한국 현대미술가 **김창열(Kim Tschang-yeul)** 작가의 물방울·신문 미학을 **참고한 비공식 웹 프로젝트**이며, 작가·미술관과 공식 협력 관계는 없습니다.
-
-| 항목 | 링크 |
-|------|------|
-| **라이브 체험 (GitHub Pages)** | **<https://jhunj.github.io/kimchang/>** |
-| **소스 코드** | <https://github.com/JhunJ/kimchang> |
+[![소스 코드](https://img.shields.io/badge/소스-GitHub-181717?logo=github)](https://github.com/JhunJ/kimchang)
 
 ---
 
-## 스크린샷
+## 스크린샷 (최신 UI)
 
-### 뷰포트 (헤더 + 캔버스)
+![김창열 물방울 WebGL 데모 — 라이브 체험 링크·캔버스](public/docs/screenshot.png)
 
-![김창열 물방울 데모 — 신문 배경과 굴절](public/docs/screenshot-viewport.png)
+---
 
-### 전체 페이지 (안내 문서 포함)
+브라우저에서 **신문 질감 텍스트**를 배경으로 깔고, 그 위를 **WebGL**로 그린 **물방울**이 굴절·빛을 내는 인터랙티브 데모입니다. 한국 현대미술가 **김창열(Kim Tschang-yeul)** 작가의 물방울·신문 미학을 **참고한 비공식 웹 프로젝트**이며, 작가·미술관과 공식 협력 관계는 없습니다.
 
-![전체 페이지 스크롤 영역](public/docs/screenshot-fullpage.png)
+**기관·전시 관계자용 안내 메일 초안**은 [`docs/OUTREACH_EMAIL_KR.md`](docs/OUTREACH_EMAIL_KR.md) 에 두었습니다. (직접 복사해 발송해 주세요.)
 
 ---
 
@@ -46,8 +46,7 @@ npm run preview       # 빌드 미리보기
 ```
 
 - **GitHub Pages**에 맞춘 빌드는 `npm run build:pages` 또는 CI와 동일하게 `VITE_BASE_PATH=/kimchang/ npm run build` 입니다.
-- 배포는 `.github/workflows/deploy-pages.yml` 이 `main` 푸시 시 **자동**으로 `dist`를 게시합니다.  
-  처음 한 번은 저장소 **Settings → Pages → Build and deployment → Source: GitHub Actions** 로 두면 됩니다.
+- 배포는 `.github/workflows/deploy-pages.yml` 이 `main` 푸시 시 **자동**으로 `dist`를 게시합니다.
 
 ---
 
@@ -104,47 +103,10 @@ npm run preview       # 빌드 미리보기
 
 ---
 
-## GitHub에서 검색·노출·체험 설정 (권장)
+## GitHub에서 검색·노출·Social preview
 
-아래는 저장소가 **검색(GitHub 내부·외부)·프로필 핀**에 잘 잡히도록 하기 위한 체크리스트입니다.
-
-### 1. 저장소가 공개(Public)인지
-
-**Settings → General → Danger Zone → Change repository visibility** 에서 **Public** 이어야 GitHub 검색과 Pages가 넓게 노출됩니다. (이 저장소는 공개로 두는 것을 권장합니다.)
-
-### 2. About (설명·Topics·웹사이트)
-
-저장소 메인 화면 오른쪽 위 **⚙ About** 에서:
-
-| 항목 | 예시 |
-|------|------|
-| **Description** | `신문 위 WebGL 물방울 굴절 · 김창열(Kim Tschang-yeul) 미학 참고 데모 · 라이브` |
-| **Website** | `https://jhunj.github.io/kimchang/` |
-| **Topics** | `webgl`, `typescript`, `vite`, `kim-tschang-yeul`, `kim-chang-yeul`, `contemporary-art`, `korean-art`, `interactive-art`, `water-droplet`, `digital-art`, `newspaper`, `refraction` |
-
-CLI로 한 번에 반영하려면 (로그인된 `gh`):
-
-```bash
-gh repo edit JhunJ/kimchang \
-  --description "신문 위 WebGL 물방울 굴절 데모 · 김창열(Kim Tschang-yeul) 미학 참고 · 라이브: jhunj.github.io/kimchang" \
-  --homepage "https://jhunj.github.io/kimchang/" \
-  --add-topic webgl --add-topic typescript --add-topic vite \
-  --add-topic kim-tschang-yeul --add-topic contemporary-art --add-topic korean-art \
-  --add-topic interactive-art --add-topic water-droplet --add-topic digital-art
-```
-
-### 3. Social preview (링크 공유 시 썸네일)
-
-**Settings → General → Social preview** 에서 `public/docs/screenshot-viewport.png` 를 업로드하면 Slack/X 등에 링크를 붙일 때 미리보기가 붙습니다.
-
-### 4. GitHub Pages
-
-**Settings → Pages** 에서 **Source: GitHub Actions** 를 선택하면 이 저장소의 워크플로가 배포합니다.  
-배포 후 주소: **<https://jhunj.github.io/kimchang/>**
-
-### 5. 웹 검색(SEO) 보조
-
-앱 `index.html` 에 메타 설명·키워드·`robots.txt`·`sitemap.xml`(배포 경로 기준)을 넣어 두었습니다. 검색엔진 반영에는 시간이 걸릴 수 있습니다.
+- 저장소 **About**에 **Website** 로 라이브 URL을 넣어 두었습니다.
+- **Settings → General → Social preview** 에 `public/docs/screenshot.png` 를 올리면 링크 카드에 썸네일이 붙습니다.
 
 ---
 

@@ -31,13 +31,13 @@
     <meta property="og:locale" content="ko_KR" />
     <meta
       property="og:image"
-      content="https://jhunj.github.io/kimchang/docs/screenshot-viewport.png"
+      content="https://jhunj.github.io/kimchang/docs/screenshot.png"
     />
     <meta property="og:url" content="https://jhunj.github.io/kimchang/" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta
       name="twitter:image"
-      content="https://jhunj.github.io/kimchang/docs/screenshot-viewport.png"
+      content="https://jhunj.github.io/kimchang/docs/screenshot.png"
     />
     <meta
       name="twitter:title"
@@ -159,6 +159,32 @@
       .app-topbar-more:hover {
         background: rgba(255, 255, 255, 0.1);
         color: #fff;
+      }
+      .live-demo-bar {
+        flex-shrink: 0;
+        margin: 0;
+        padding: 8px 12px;
+        font-size: clamp(0.78rem, 2.8vw, 0.9rem);
+        line-height: 1.4;
+        text-align: center;
+        color: rgba(232, 228, 220, 0.92);
+        background: linear-gradient(
+          90deg,
+          rgba(90, 78, 52, 0.35),
+          rgba(140, 120, 80, 0.28),
+          rgba(90, 78, 52, 0.35)
+        );
+        border-bottom: 1px solid rgba(200, 175, 130, 0.22);
+      }
+      .live-demo-bar a {
+        color: #e8dfc4;
+        font-weight: 600;
+        word-break: break-all;
+      }
+      .live-demo-bar .live-label {
+        color: rgba(255, 255, 255, 0.55);
+        font-weight: 500;
+        margin-right: 6px;
       }
       canvas {
         display: block;
@@ -450,6 +476,10 @@
         <div class="app-topbar-title">김창열 물방울 <span>· WebGL</span></div>
         <a class="app-topbar-more" href="#guide-wrap">소개·사용법</a>
       </header>
+      <p class="live-demo-bar">
+        <span class="live-label">라이브 체험</span>
+        <a href="https://jhunj.github.io/kimchang/">https://jhunj.github.io/kimchang/</a>
+      </p>
       <div
         id="stage"
         class="stage"
