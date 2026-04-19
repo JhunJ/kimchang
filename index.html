@@ -114,21 +114,36 @@
       }
       #app {
         width: 100%;
-        max-width: 1100px;
+        max-width: 1200px;
         margin: 0 auto;
         display: flex;
         flex-direction: column;
+        min-height: 100dvh;
+        min-height: 100vh;
         gap: 0;
+      }
+      .app-main {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
         min-height: 0;
-        flex: 1;
+        max-height: calc(100dvh - 46px);
+        max-height: calc(100vh - 46px);
+        overflow: hidden;
+      }
+      @media (min-width: 768px) {
+        .app-main {
+          flex-direction: row;
+        }
       }
       .app-topbar {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 10px;
+        gap: 8px;
         flex-shrink: 0;
-        padding: 8px 12px;
+        padding: 6px 10px;
         font-size: 13px;
         color: rgba(255, 255, 255, 0.72);
         background: rgba(0, 0, 0, 0.35);
@@ -206,19 +221,14 @@
         width: 100%;
         height: auto;
         max-width: 100%;
-        max-height: min(46vh, 560px);
+        max-height: 100%;
         object-fit: contain;
       }
-      @media (min-width: 641px) {
-        canvas {
-          max-height: none;
-        }
-      }
       .stage {
-        flex: 0 1 auto;
+        flex: 1 1 50%;
         width: 100%;
+        min-width: 0;
         min-height: 0;
-        max-height: min(46vh, 560px);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -227,35 +237,54 @@
           #252018 0%,
           #141210 65%
         );
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
       }
-      @media (min-width: 641px) {
+      @media (max-width: 767px) {
         .stage {
+          flex: 0 0 auto;
+          max-height: min(34vh, 280px);
+        }
+      }
+      @media (min-width: 768px) {
+        .stage {
+          flex: 1 1 50%;
           max-height: none;
-          min-height: min(48vh, 680px);
-          flex: 1;
+          border-bottom: none;
+          border-right: 1px solid rgba(255, 255, 255, 0.07);
         }
       }
       .bg-editor {
-        flex-shrink: 0;
+        flex: 1 1 50%;
+        min-width: 0;
+        min-height: 0;
         width: 100%;
         margin: 0 auto;
-        padding: 10px 12px calc(12px + env(safe-area-inset-bottom));
-        background: linear-gradient(180deg, rgba(26, 24, 20, 0.92), #141210);
+        padding: 6px 10px calc(8px + env(safe-area-inset-bottom));
+        background: linear-gradient(180deg, rgba(26, 24, 20, 0.96), #141210);
         border-top: 1px solid rgba(255, 255, 255, 0.06);
         z-index: 2;
+        overflow-x: hidden;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      @media (min-width: 768px) {
+        .bg-editor {
+          border-top: none;
+          max-height: none;
+        }
       }
       .bg-editor label {
         display: block;
-        font: 13px/1.4 system-ui, sans-serif;
+        font: 12px/1.35 system-ui, sans-serif;
         color: rgba(255, 255, 255, 0.72);
-        margin-bottom: 6px;
+        margin-bottom: 4px;
       }
       .bg-editor textarea {
         width: 100%;
-        min-height: 56px;
-        max-height: 140px;
+        min-height: 44px;
+        max-height: 100px;
         resize: vertical;
-        padding: 10px 12px;
+        padding: 8px 10px;
         font:
           14px/1.45 'Noto Serif KR',
           serif;
@@ -269,24 +298,24 @@
         border-color: rgba(180, 160, 120, 0.45);
       }
       .bg-editor .hint {
-        font: 11px/1.35 system-ui, sans-serif;
-        color: rgba(255, 255, 255, 0.38);
-        margin-top: 6px;
+        font: 10px/1.35 system-ui, sans-serif;
+        color: rgba(255, 255, 255, 0.36);
+        margin-top: 4px;
       }
       .font-size-row {
         display: flex;
         align-items: center;
-        gap: 10px;
-        margin-top: 10px;
-        padding: 8px 10px;
+        gap: 8px;
+        margin-top: 5px;
+        padding: 5px 8px;
         background: rgba(0, 0, 0, 0.2);
-        border-radius: 8px;
+        border-radius: 7px;
         border: 1px solid rgba(255, 255, 255, 0.06);
       }
       .font-size-row label {
         margin: 0;
         flex-shrink: 0;
-        font-size: 13px;
+        font-size: 12px;
       }
       .font-size-row input[type='range'] {
         flex: 1;
@@ -294,13 +323,13 @@
         min-height: 36px;
         accent-color: #b8a070;
       }
-      @media (max-width: 640px) {
+      @media (max-width: 767px) {
         .font-size-row {
           flex-wrap: wrap;
-          padding: 10px 10px;
+          padding: 6px 8px;
         }
         .font-size-row label {
-          min-width: 4.5em;
+          min-width: 4.2em;
         }
         .bg-editor textarea {
           font-size: 16px;
@@ -483,28 +512,28 @@
         margin-right: 6px;
       }
       .lighting-block {
-        margin-top: 12px;
-        padding-top: 12px;
+        margin-top: 6px;
+        padding-top: 8px;
         border-top: 1px solid rgba(255, 255, 255, 0.07);
       }
       .light-dial-block-title {
-        font: 12px/1.35 system-ui, sans-serif;
+        font: 11px/1.35 system-ui, sans-serif;
         color: rgba(255, 255, 255, 0.55);
-        margin: 0 0 8px;
+        margin: 0 0 5px;
         letter-spacing: 0.02em;
       }
       .light-dial-row-inner {
         display: flex;
         align-items: center;
-        gap: 14px;
+        gap: 10px;
         flex-wrap: wrap;
-        margin-bottom: 10px;
+        margin-bottom: 6px;
       }
       .light-dial {
-        --light-deg: 318deg;
+        --light-deg: 180deg;
         flex-shrink: 0;
-        width: 92px;
-        height: 92px;
+        width: 76px;
+        height: 76px;
         border-radius: 50%;
         position: relative;
         touch-action: none;
@@ -539,15 +568,15 @@
         position: absolute;
         left: 50%;
         top: 50%;
-        width: 14px;
-        height: 14px;
-        margin: -7px 0 0 -7px;
+        width: 12px;
+        height: 12px;
+        margin: -6px 0 0 -6px;
         border-radius: 50%;
         background: linear-gradient(155deg, #f2ebe0, #9a8a6e);
         box-shadow:
           0 1px 4px rgba(0, 0, 0, 0.5),
           inset 0 1px 0 rgba(255, 255, 255, 0.35);
-        transform: rotate(var(--light-deg)) translateY(-37px);
+        transform: rotate(var(--light-deg)) translateY(-30px);
         pointer-events: none;
       }
       .light-dial-deg {
@@ -562,7 +591,7 @@
       #sat-row label {
         min-width: 6.5em;
       }
-      @media (max-width: 640px) {
+      @media (max-width: 767px) {
         .light-dial-row-inner {
           justify-content: flex-start;
         }
@@ -592,13 +621,14 @@
           </div>
         </div>
       </header>
-      <div
-        id="stage"
-        class="stage"
-        role="img"
-        aria-label="물방울이 신문 위에 올라간 WebGL 캔버스"
-      ></div>
-      <div class="bg-editor" aria-label="신문 본문 및 물방울 설정">
+      <div class="app-main">
+        <div
+          id="stage"
+          class="stage"
+          role="img"
+          aria-label="물방울이 신문 위에 올라간 WebGL 캔버스"
+        ></div>
+        <div class="bg-editor" aria-label="신문 본문 및 물방울 설정">
         <label for="bg-text">신문 본문 (굴절·물방울에 반영)</label>
         <textarea
           id="bg-text"
@@ -666,14 +696,14 @@
               tabindex="0"
               aria-valuemin="0"
               aria-valuemax="360"
-              aria-valuenow="318"
+              aria-valuenow="180"
               aria-orientation="horizontal"
               aria-labelledby="i18n-label-lighting-title"
             >
               <span class="light-dial-sun" aria-hidden="true">☀</span>
               <span class="light-dial-knob" id="light-dial-knob"></span>
             </div>
-            <span class="light-dial-deg" id="light-dial-deg">318°</span>
+            <span class="light-dial-deg" id="light-dial-deg">180°</span>
           </div>
           <div
             class="font-size-row"
@@ -730,6 +760,7 @@
           설정은 이 기기에 저장됩니다. 슬라이더 줄을 손가락으로 밀거나(모바일),
           PC에서는 휠로 미세 조정할 수 있습니다.
         </p>
+        </div>
       </div>
     </div>
 

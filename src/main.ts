@@ -252,7 +252,7 @@ const GLASS_PCT_STORAGE_KEY = 'kimchang-glass-pct'
 const VFX_SHADOW_PCT_STORAGE_KEY = 'kimchang-vfx-shadow-pct'
 const SAT_PCT_STORAGE_KEY = 'kimchang-sat-pct'
 
-const DEFAULT_LIGHT_DEG = 318
+const DEFAULT_LIGHT_DEG = 180
 const DEFAULT_GLASS_PCT = 72
 const DEFAULT_VFX_SHADOW_PCT = 68
 const DEFAULT_SAT_PCT = 38
@@ -310,16 +310,28 @@ function readStoredFontPx(): number {
   return clampFontSizePx(n)
 }
 
-/** 좁은 화면에서는 캔버스 높이를 줄여 본문·슬라이더가 같은 화면에 보이도록 */
+/**
+ * 캔버스 내부 해상도 — 좌우 분할(≥768px)일 때 왼쪽 열 폭에 맞추고,
+ * 모바일에서는 헤더 아래 남는 높이의 일부만 사용해 패널과 한 화면에 두기 쉽게 함.
+ */
 function canvasSizeForViewport(): { w: number; h: number } {
   const vw = window.innerWidth
   const vh = window.innerHeight
-  const w = Math.min(1100, Math.max(200, vw - 8))
-  if (vw <= 640) {
-    const h = Math.min(680, Math.max(240, Math.floor(vh * 0.42)))
+  const topbar = 46
+  const availH = Math.max(200, vh - topbar - 12)
+
+  if (vw >= 768) {
+    const colW = Math.max(220, Math.min(720, Math.floor((vw - 24) / 2) - 6))
+    const h = Math.floor(
+      Math.min(availH - 4, Math.max(260, colW * 0.78), 620),
+    )
+    const w = Math.floor(Math.min(colW, Math.max(220, h * 1.28)))
     return { w, h }
   }
-  return { w, h: Math.min(1400, Math.max(320, vh - 8)) }
+
+  const w = Math.min(1100, Math.max(200, vw - 8))
+  const h = Math.min(360, Math.max(200, Math.floor(availH * 0.4)))
+  return { w, h }
 }
 
 function main() {

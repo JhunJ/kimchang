@@ -53,7 +53,7 @@ export const DEFAULT_BACKGROUND_TEXT = `
 
 const NEWSPAPER_BODY = DEFAULT_BACKGROUND_TEXT.replace(/\s+/g, '')
 
-export const DEFAULT_FONT_SIZE_PX = 15
+export const DEFAULT_FONT_SIZE_PX = 40
 export const MIN_FONT_SIZE_PX = 11
 /** 신문 텍스처(1200×1500) 안에서도 쓸 수 있을 만큼 크게 — 슬라이더·휠 상한 */
 export const MAX_FONT_SIZE_PX = 120
