@@ -38,6 +38,7 @@ import {
   getStoredLang,
   initI18nUi,
 } from './i18n'
+import { initUiChrome } from './uiChrome'
 
 const VERT = `
 attribute vec2 a_pos;
@@ -77,6 +78,7 @@ uniform float u_glassBlend;
 uniform float u_shadowMix;
 uniform float u_causticMix;
 uniform float u_satInDrop;
+uniform float u_sunElevation;
 
 vec2 toTexUv(vec2 uv) {
   float cw = u_resolution.x;
@@ -93,6 +95,8 @@ void main() {
   vec2 frag = v_uv * u_resolution;
   vec2 lf = vec2(sin(u_lightAngle), -cos(u_lightAngle));
   vec2 lfN = normalize(lf + vec2(1e-5));
+  float elev = clamp(u_sunElevation, 0.03, 0.97);
+  float lowSun = 1.0 - elev;
 
   float shAcc = 0.0;
   float cAcc = 0.0;
@@ -107,11 +111,28 @@ void main() {
     float ell = length(vec2(p.x / urx, p.y / ury));
     float maskApprox = smoothstep(1.14, 0.0, ell);
     float Rm = max(urx, ury);
-    vec2 shC = c - lfN * Rm * 1.38;
-    float dSh = length(frag - shC);
-    float elong = 1.0 + 0.42 * abs(dot(normalize(frag - shC + vec2(1e-3)), lfN));
-    float shBlob = smoothstep(Rm * 3.15 * elong, Rm * 0.13, dSh) * (1.0 - maskApprox * 0.93);
-    float hot = exp(-(dSh * dSh) / max(1.0, Rm * Rm * 1.05)) * (1.0 - maskApprox * 0.9);
+    vec2 shadowOut = -lfN;
+    vec2 perpU = vec2(-shadowOut.y, shadowOut.x);
+    vec2 fromC = frag - c;
+    float towardShadow = dot(fromC, shadowOut);
+    float sunWard = dot(fromC, lfN);
+    float halfPlane = smoothstep(-Rm * 0.18, Rm * 0.22, towardShadow);
+    float sunMask = 1.0 - 0.94 * smoothstep(-Rm * 0.12, Rm * 0.88, sunWard);
+    vec2 shAnchor = c + shadowOut * Rm * mix(0.58, 0.2, elev);
+    vec2 q = frag - shAnchor;
+    float qa = dot(q, shadowOut);
+    float qp = dot(q, perpU);
+    float axisAlong = Rm * mix(3.95, 1.22, elev);
+    float axisPerp = Rm * mix(0.48, 0.95, elev);
+    float eNorm = sqrt((qa * qa) / (axisAlong * axisAlong) + (qp * qp) / (axisPerp * axisPerp));
+    float shBlob = smoothstep(1.1, 0.14, eNorm) * (1.0 - maskApprox * 0.93) * halfPlane * sunMask;
+    float hotFall = mix(0.88, 1.0, elev);
+    vec2 hotAnchor = c + shadowOut * Rm * mix(1.02, 0.42, elev);
+    vec2 qh = frag - hotAnchor;
+    float ha = dot(qh, shadowOut) / max(Rm * mix(0.55, 0.26, elev), 0.5);
+    float hp = dot(qh, perpU) / max(Rm * mix(0.36, 0.52, elev), 0.5);
+    float hNorm = sqrt(ha * ha + hp * hp);
+    float hot = exp(-hNorm * hNorm * mix(3.8, 6.2, elev)) * (1.0 - maskApprox * 0.9) * hotFall * halfPlane;
     shAcc = max(shAcc, shBlob);
     cAcc = max(cAcc, hot * sqrt(shBlob + 0.04));
     }
@@ -122,7 +143,9 @@ void main() {
   base = mix(base, base * vec3(0.76, 0.60, 0.45), min(1.0, shAcc * u_shadowMix));
   base += vec3(1.0, 0.76, 0.42) * min(0.52, cAcc * u_causticMix);
 
-  vec3 L = normalize(vec3(lfN.x * 0.78, lfN.y * 0.78, 0.58));
+  float Lxy = mix(0.38, 0.93, lowSun);
+  float Lz = mix(0.84, 0.12, lowSun);
+  vec3 L = normalize(vec3(lfN.x * Lxy, lfN.y * Lxy, Lz));
   vec3 V = vec3(0.0, 0.0, 1.0);
 
   for (int idx = 0; idx < MAX_DROPS; idx++) {
@@ -193,7 +216,7 @@ void main() {
         float glass = mask * u_glassBlend;
         dropletCol = mix(bgLocal, dropletCol, glass);
 
-        vec2 warmPt = c - lfN * min(urx, ury) * 0.42;
+        vec2 warmPt = c - lfN * min(urx, ury) * mix(0.52, 0.38, elev);
         float pr = min(urx, ury) * 0.2;
         float shA = smoothstep(pr * 9.0, 0.0, length(frag - warmPt)) * 0.38 * (1.0 - inner * 0.4);
         dropletCol = mix(dropletCol, dropletCol * vec3(0.52, 0.38, 0.24), shA);
@@ -251,11 +274,14 @@ const LIGHT_DEG_STORAGE_KEY = 'kimchang-light-deg'
 const GLASS_PCT_STORAGE_KEY = 'kimchang-glass-pct'
 const VFX_SHADOW_PCT_STORAGE_KEY = 'kimchang-vfx-shadow-pct'
 const SAT_PCT_STORAGE_KEY = 'kimchang-sat-pct'
+const SUN_ELEV_PCT_STORAGE_KEY = 'kimchang-sun-elev-pct'
 
 const DEFAULT_LIGHT_DEG = 180
 const DEFAULT_GLASS_PCT = 72
 const DEFAULT_VFX_SHADOW_PCT = 68
 const DEFAULT_SAT_PCT = 38
+/** 0 = 낮은 태양(그림자 김), 100 = 높은 태양(그림자 짧음) */
+const DEFAULT_SUN_ELEV_PCT = 38
 
 function readStoredLightDeg(): number {
   try {
@@ -483,6 +509,7 @@ function main() {
   const uShadowMix = g.getUniformLocation(prog, 'u_shadowMix')
   const uCausticMix = g.getUniformLocation(prog, 'u_causticMix')
   const uSatInDrop = g.getUniformLocation(prog, 'u_satInDrop')
+  const uSunElevation = g.getUniformLocation(prog, 'u_sunElevation')
   g.uniform2f(uTexSize, texCanvas.width, texCanvas.height)
 
   let lightDeg = readStoredLightDeg()
@@ -499,6 +526,12 @@ function main() {
     100,
   )
   let satPct = readStoredPct(SAT_PCT_STORAGE_KEY, DEFAULT_SAT_PCT, 0, 100)
+  let sunElevPct = readStoredPct(
+    SUN_ELEV_PCT_STORAGE_KEY,
+    DEFAULT_SUN_ELEV_PCT,
+    0,
+    100,
+  )
 
   function syncLightingUniforms() {
     const rad = (lightDeg * Math.PI) / 180
@@ -509,6 +542,7 @@ function main() {
     g.uniform1f(uShadowMix, sm)
     g.uniform1f(uCausticMix, (vfxShadowPct / 100) * 0.64)
     g.uniform1f(uSatInDrop, (satPct / 100) * 0.44)
+    g.uniform1f(uSunElevation, sunElevPct / 100)
   }
 
   function persistLighting() {
@@ -517,6 +551,7 @@ function main() {
       localStorage.setItem(GLASS_PCT_STORAGE_KEY, String(glassPct))
       localStorage.setItem(VFX_SHADOW_PCT_STORAGE_KEY, String(vfxShadowPct))
       localStorage.setItem(SAT_PCT_STORAGE_KEY, String(satPct))
+      localStorage.setItem(SUN_ELEV_PCT_STORAGE_KEY, String(sunElevPct))
     } catch {
       /* ignore */
     }
@@ -581,6 +616,10 @@ function main() {
   const shadowVal = document.getElementById('drop-vfx-shadow-val')
   const satRange = document.getElementById('drop-sat') as HTMLInputElement | null
   const satVal = document.getElementById('drop-sat-val')
+  const sunElevRange = document.getElementById(
+    'drop-sun-elev',
+  ) as HTMLInputElement | null
+  const sunElevVal = document.getElementById('drop-sun-elev-val')
 
   const syncGlassUi = () => {
     if (glassRange) glassRange.value = String(glassPct)
@@ -594,9 +633,14 @@ function main() {
     if (satRange) satRange.value = String(satPct)
     if (satVal) satVal.textContent = `${satPct}%`
   }
+  const syncSunElevUi = () => {
+    if (sunElevRange) sunElevRange.value = String(sunElevPct)
+    if (sunElevVal) sunElevVal.textContent = `${sunElevPct}%`
+  }
   syncGlassUi()
   syncShadowUi()
   syncSatUi()
+  syncSunElevUi()
 
   if (glassRange) {
     glassRange.addEventListener('input', () => {
@@ -616,6 +660,13 @@ function main() {
     satRange.addEventListener('input', () => {
       satPct = parseInt(satRange.value, 10)
       syncSatUi()
+      persistLighting()
+    })
+  }
+  if (sunElevRange) {
+    sunElevRange.addEventListener('input', () => {
+      sunElevPct = parseInt(sunElevRange.value, 10)
+      syncSunElevUi()
       persistLighting()
     })
   }
@@ -879,12 +930,17 @@ function main() {
     resizeT = window.setTimeout(() => {
       resizeT = undefined
       const { w, h } = canvasSizeForViewport()
+      if (w === canvas.width && h === canvas.height) return
       canvas.width = w
       canvas.height = h
       resetSimulation(canvas.width, canvas.height)
       wet.resize(canvas.width, canvas.height)
       wet.clear()
     }, 120)
+  })
+
+  initUiChrome(() => {
+    window.dispatchEvent(new Event('resize'))
   })
 
   initI18nUi(() => {

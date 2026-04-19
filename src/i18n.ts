@@ -76,6 +76,17 @@ const KO: Dict = {
   titleVfxShadowRow: '브라운 그림자와 따뜻한 캐스틱 번짐',
   labelSat: '방울 안 채도',
   titleSatRow: '방울 안 글자 채도 (맑은 느낌)',
+  labelSunElev: '빛 높이 · 그림자',
+  titleSunElevRow:
+    '낮을수록 빛이 스쳐 지나가 조명 반대 방향으로 그림자가 길게 늘어나고, 높을수록 짧아집니다 (원처럼 커지는 느낌이 아님)',
+  tabText: '본문',
+  tabDrops: '방울',
+  tabLight: '조명',
+  ariaTablist: '옵션 탭',
+  btnCanvasOnly: '화면만',
+  titleCanvasOnly: '패널·안내를 숨기고 캔버스만 표시',
+  btnShowOptions: '옵션 보이기',
+  titleShowOptions: '설정 패널 다시 표시',
 }
 
 const EN: Dict = {
@@ -131,6 +142,17 @@ const EN: Dict = {
   titleVfxShadowRow: 'Warm brown shadow and amber caustic under drops',
   labelSat: 'Saturation inside drop',
   titleSatRow: 'Text saturation inside the droplet (clearer look)',
+  labelSunElev: 'Sun height · shadow',
+  titleSunElevRow:
+    'Lower sun: shadow stretches along the light direction (elongated), not a uniform radial bloom. Higher: shorter.',
+  tabText: 'Text',
+  tabDrops: 'Drops',
+  tabLight: 'Light',
+  ariaTablist: 'Option tabs',
+  btnCanvasOnly: 'Canvas only',
+  titleCanvasOnly: 'Hide panels and guide; show canvas only',
+  btnShowOptions: 'Show options',
+  titleShowOptions: 'Show settings panel again',
 }
 
 const DICTS: Record<Lang, Dict> = { ko: KO, en: EN }
@@ -218,6 +240,10 @@ export function applyPageLanguage(lang: Lang): void {
   if (vfxRow) vfxRow.setAttribute('title', d.titleVfxShadowRow)
   const satRow = document.getElementById('sat-row')
   if (satRow) satRow.setAttribute('title', d.titleSatRow)
+  const sunElevLabel = document.getElementById('i18n-label-sun-elev')
+  if (sunElevLabel) sunElevLabel.textContent = d.labelSunElev
+  const sunElevRow = document.getElementById('sun-elev-row')
+  if (sunElevRow) sunElevRow.setAttribute('title', d.titleSunElevRow)
 
   const hint = document.querySelector('.bg-editor .hint')
   if (hint) hint.textContent = d.hint
@@ -265,6 +291,26 @@ export function applyPageLanguage(lang: Lang): void {
 
   const langGroup = document.getElementById('lang-switch')
   if (langGroup) langGroup.setAttribute('aria-label', d.langAria)
+
+  const tabText = document.getElementById('tab-text')
+  const tabDrops = document.getElementById('tab-drops')
+  const tabLight = document.getElementById('tab-light')
+  if (tabText) tabText.textContent = d.tabText
+  if (tabDrops) tabDrops.textContent = d.tabDrops
+  if (tabLight) tabLight.textContent = d.tabLight
+  const tablist = document.getElementById('option-tablist')
+  if (tablist) tablist.setAttribute('aria-label', d.ariaTablist)
+
+  const btnCanvas = document.getElementById('btn-canvas-only')
+  if (btnCanvas) {
+    btnCanvas.textContent = d.btnCanvasOnly
+    btnCanvas.setAttribute('title', d.titleCanvasOnly)
+  }
+  const btnFab = document.getElementById('btn-show-panels-floating')
+  if (btnFab) {
+    btnFab.textContent = d.btnShowOptions
+    btnFab.setAttribute('title', d.titleShowOptions)
+  }
 }
 
 export function initI18nUi(

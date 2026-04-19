@@ -92,6 +92,35 @@
         padding: env(safe-area-inset-top) env(safe-area-inset-right)
           env(safe-area-inset-bottom) env(safe-area-inset-left);
       }
+      body.ui-canvas-only {
+        overflow: hidden;
+        height: 100dvh;
+        height: 100vh;
+        max-height: 100dvh;
+      }
+      body.ui-canvas-only .guide-wrap {
+        display: none !important;
+      }
+      body.ui-canvas-only .app-topbar {
+        display: none !important;
+      }
+      body.ui-canvas-only .bg-editor {
+        display: none !important;
+      }
+      body.ui-canvas-only #app {
+        min-height: 100dvh;
+        max-height: 100dvh;
+      }
+      body.ui-canvas-only .app-main {
+        flex-direction: column !important;
+        max-height: 100dvh !important;
+      }
+      body.ui-canvas-only .stage {
+        flex: 1 1 auto !important;
+        max-height: none !important;
+        min-height: 0;
+        border: none !important;
+      }
       a {
         color: #c4b896;
         text-decoration: underline;
@@ -164,8 +193,10 @@
       .app-topbar-actions {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
         flex-shrink: 0;
+        flex-wrap: wrap;
+        justify-content: flex-end;
       }
       .app-topbar-more {
         flex-shrink: 0;
@@ -180,6 +211,25 @@
       .app-topbar-more:hover {
         background: rgba(255, 255, 255, 0.1);
         color: #fff;
+      }
+      .app-topbar-canvas {
+        flex-shrink: 0;
+        font: 600 11px/1.2 system-ui, sans-serif;
+        padding: 5px 9px;
+        border-radius: 8px;
+        border: 1px solid rgba(180, 160, 120, 0.35);
+        background: rgba(180, 160, 120, 0.12);
+        color: #ece8dc;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .app-topbar-canvas:hover {
+        background: rgba(180, 160, 120, 0.22);
+        color: #fff;
+      }
+      .app-topbar-canvas:focus-visible {
+        outline: 2px solid rgba(200, 180, 140, 0.75);
+        outline-offset: 2px;
       }
       .lang-switch {
         display: flex;
@@ -301,6 +351,65 @@
         font: 10px/1.35 system-ui, sans-serif;
         color: rgba(255, 255, 255, 0.36);
         margin-top: 4px;
+      }
+      .option-tabs {
+        display: none;
+        gap: 4px;
+        margin-bottom: 6px;
+      }
+      .option-tab {
+        flex: 1;
+        margin: 0;
+        padding: 7px 6px;
+        font: 600 11px/1.2 system-ui, sans-serif;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(0, 0, 0, 0.25);
+        color: rgba(255, 255, 255, 0.55);
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .option-tab[aria-selected='true'] {
+        color: #f2ede4;
+        background: rgba(180, 160, 120, 0.2);
+        border-color: rgba(180, 160, 120, 0.4);
+      }
+      .option-tab:focus-visible {
+        outline: 2px solid rgba(200, 180, 140, 0.7);
+        outline-offset: 1px;
+      }
+      @media (max-width: 767px) {
+        .option-tabs {
+          display: flex;
+        }
+        .option-panel:not(.is-active) {
+          display: none !important;
+        }
+      }
+      @media (min-width: 768px) {
+        .option-panel {
+          display: block !important;
+        }
+      }
+      .fab-show-options {
+        position: fixed;
+        bottom: calc(14px + env(safe-area-inset-bottom));
+        right: calc(14px + env(safe-area-inset-right));
+        z-index: 60;
+        margin: 0;
+        padding: 11px 18px;
+        font: 600 13px/1.2 system-ui, sans-serif;
+        border-radius: 999px;
+        border: 1px solid rgba(180, 160, 120, 0.45);
+        background: rgba(30, 26, 22, 0.92);
+        color: #f0ebe3;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .fab-show-options:focus-visible {
+        outline: 2px solid rgba(200, 180, 140, 0.85);
+        outline-offset: 2px;
       }
       .font-size-row {
         display: flex;
@@ -586,6 +695,7 @@
         color: rgba(255, 255, 255, 0.5);
         min-width: 3.2em;
       }
+      #sun-elev-row label,
       #glass-row label,
       #vfx-shadow-row label,
       #sat-row label {
@@ -615,6 +725,15 @@
             href="#guide-wrap"
             >소개·사용법</a
           >
+          <button
+            type="button"
+            class="app-topbar-canvas"
+            id="btn-canvas-only"
+            title="패널·안내를 숨기고 캔버스만 표시"
+            aria-pressed="false"
+          >
+            화면만
+          </button>
           <div class="lang-switch" id="lang-switch" role="group">
             <button type="button" id="lang-ko" aria-pressed="true">KO</button>
             <button type="button" id="lang-en" aria-pressed="false">EN</button>
@@ -629,62 +748,124 @@
           aria-label="물방울이 신문 위에 올라간 WebGL 캔버스"
         ></div>
         <div class="bg-editor" aria-label="신문 본문 및 물방울 설정">
-        <label for="bg-text">신문 본문 (굴절·물방울에 반영)</label>
-        <textarea
-          id="bg-text"
-          spellcheck="false"
-          autocomplete="off"
-          placeholder="한글·한자 등 입력… 비우면 기본 신문 본문이 사용됩니다."
-        ></textarea>
-        <div
-          class="font-size-row"
-          id="bg-font-row"
-          title="슬라이더 조절 또는 이 영역에서 마우스 휠로 크기 변경"
-        >
-          <label for="bg-font-size">글자 크기</label>
-          <input
-            id="bg-font-size"
-            type="range"
-            min="11"
-            max="120"
-            step="1"
-            value="40"
-          />
-          <span id="bg-font-size-val" class="font-size-val">40px</span>
-        </div>
-        <div
-          class="font-size-row"
-          id="drop-size-row"
-          title="슬라이더 또는 이 줄에서 마우스 휠로 물방울 크기 조절 (100% = 기본)"
-        >
-          <label for="drop-size">물방울 크기</label>
-          <input
-            id="drop-size"
-            type="range"
-            min="35"
-            max="280"
-            step="1"
-            value="100"
-          />
-          <span id="drop-size-val" class="font-size-val">100%</span>
-        </div>
-        <div
-          class="font-size-row"
-          id="drop-count-row"
-          title="슬라이더 또는 이 줄에서 마우스 휠로 물방울 개수 (최대 64개)"
-        >
-          <label for="drop-count">물방울 개수</label>
-          <input
-            id="drop-count"
-            type="range"
-            min="1"
-            max="64"
-            step="1"
-            value="1"
-          />
-          <span id="drop-count-val" class="font-size-val">1개</span>
-        </div>
-        <div class="lighting-block" id="lighting-block">
+          <div
+            class="option-tabs"
+            id="option-tablist"
+            role="tablist"
+            aria-label="옵션 탭"
+          >
+            <button
+              type="button"
+              class="option-tab"
+              id="tab-text"
+              role="tab"
+              aria-selected="true"
+              aria-controls="panel-text"
+            >
+              본문
+            </button>
+            <button
+              type="button"
+              class="option-tab"
+              id="tab-drops"
+              role="tab"
+              aria-selected="false"
+              aria-controls="panel-drops"
+              tabindex="-1"
+            >
+              방울
+            </button>
+            <button
+              type="button"
+              class="option-tab"
+              id="tab-light"
+              role="tab"
+              aria-selected="false"
+              aria-controls="panel-light"
+              tabindex="-1"
+            >
+              조명
+            </button>
+          </div>
+
+          <div
+            class="option-panel is-active"
+            id="panel-text"
+            role="tabpanel"
+            aria-labelledby="tab-text"
+          >
+            <label for="bg-text">신문 본문 (굴절·물방울에 반영)</label>
+            <textarea
+              id="bg-text"
+              spellcheck="false"
+              autocomplete="off"
+              placeholder="한글·한자 등 입력… 비우면 기본 신문 본문이 사용됩니다."
+            ></textarea>
+            <div
+              class="font-size-row"
+              id="bg-font-row"
+              title="슬라이더 조절 또는 이 영역에서 마우스 휠로 크기 변경"
+            >
+              <label for="bg-font-size">글자 크기</label>
+              <input
+                id="bg-font-size"
+                type="range"
+                min="11"
+                max="120"
+                step="1"
+                value="40"
+              />
+              <span id="bg-font-size-val" class="font-size-val">40px</span>
+            </div>
+          </div>
+
+          <div
+            class="option-panel"
+            id="panel-drops"
+            role="tabpanel"
+            aria-labelledby="tab-drops"
+          >
+            <div
+              class="font-size-row"
+              id="drop-size-row"
+              title="슬라이더 또는 이 줄에서 마우스 휠로 물방울 크기 조절 (100% = 기본)"
+            >
+              <label for="drop-size">물방울 크기</label>
+              <input
+                id="drop-size"
+                type="range"
+                min="35"
+                max="280"
+                step="1"
+                value="100"
+              />
+              <span id="drop-size-val" class="font-size-val">100%</span>
+            </div>
+            <div
+              class="font-size-row"
+              id="drop-count-row"
+              title="슬라이더 또는 이 줄에서 마우스 휠로 물방울 개수 (최대 64개)"
+            >
+              <label for="drop-count">물방울 개수</label>
+              <input
+                id="drop-count"
+                type="range"
+                min="1"
+                max="64"
+                step="1"
+                value="1"
+              />
+              <span id="drop-count-val" class="font-size-val">1개</span>
+            </div>
+          </div>
+
+          <div
+            class="option-panel"
+            id="panel-light"
+            role="tabpanel"
+            aria-labelledby="tab-light"
+          >
+            <div class="lighting-block" id="lighting-block">
           <p id="i18n-label-lighting-title" class="light-dial-block-title">
             조명 · 유리 느낌
           </p>
@@ -704,6 +885,24 @@
               <span class="light-dial-knob" id="light-dial-knob"></span>
             </div>
             <span class="light-dial-deg" id="light-dial-deg">180°</span>
+          </div>
+          <div
+            class="font-size-row"
+            id="sun-elev-row"
+            title="낮을수록(왼쪽) 빛이 스쳐 지나가 그림자가 길어집니다"
+          >
+            <label for="drop-sun-elev" id="i18n-label-sun-elev"
+              >빛 높이 · 그림자 길이</label
+            >
+            <input
+              id="drop-sun-elev"
+              type="range"
+              min="0"
+              max="100"
+              step="1"
+              value="38"
+            />
+            <span id="drop-sun-elev-val" class="font-size-val">38%</span>
           </div>
           <div
             class="font-size-row"
@@ -755,14 +954,26 @@
             />
             <span id="drop-sat-val" class="font-size-val">38%</span>
           </div>
-        </div>
-        <p class="hint">
-          설정은 이 기기에 저장됩니다. 슬라이더 줄을 손가락으로 밀거나(모바일),
-          PC에서는 휠로 미세 조정할 수 있습니다.
-        </p>
+            </div>
+          </div>
+
+          <p class="hint">
+            설정은 이 기기에 저장됩니다. 슬라이더 줄을 손가락으로 밀거나(모바일),
+            PC에서는 휠로 미세 조정할 수 있습니다.
+          </p>
         </div>
       </div>
     </div>
+
+    <button
+      type="button"
+      id="btn-show-panels-floating"
+      class="fab-show-options"
+      hidden
+      title="설정 패널 다시 표시"
+    >
+      옵션 보이기
+    </button>
 
     <details class="guide-wrap" id="guide-wrap">
       <summary>
