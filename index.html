@@ -231,6 +231,14 @@
         outline: 2px solid rgba(200, 180, 140, 0.75);
         outline-offset: 2px;
       }
+      .stage .app-topbar-canvas {
+        position: absolute;
+        top: max(8px, env(safe-area-inset-top, 0px));
+        right: max(8px, env(safe-area-inset-right, 0px));
+        z-index: 10;
+        margin: 0;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+      }
       .lang-switch {
         display: flex;
         align-items: center;
@@ -275,6 +283,7 @@
         object-fit: contain;
       }
       .stage {
+        position: relative;
         flex: 1 1 50%;
         width: 100%;
         min-width: 0;
@@ -390,26 +399,6 @@
         .option-panel {
           display: block !important;
         }
-      }
-      .fab-show-options {
-        position: fixed;
-        bottom: calc(14px + env(safe-area-inset-bottom));
-        right: calc(14px + env(safe-area-inset-right));
-        z-index: 60;
-        margin: 0;
-        padding: 11px 18px;
-        font: 600 13px/1.2 system-ui, sans-serif;
-        border-radius: 999px;
-        border: 1px solid rgba(180, 160, 120, 0.45);
-        background: rgba(30, 26, 22, 0.92);
-        color: #f0ebe3;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
-        cursor: pointer;
-        -webkit-tap-highlight-color: transparent;
-      }
-      .fab-show-options:focus-visible {
-        outline: 2px solid rgba(200, 180, 140, 0.85);
-        outline-offset: 2px;
       }
       .font-size-row {
         display: flex;
@@ -725,15 +714,6 @@
             href="#guide-wrap"
             >소개·사용법</a
           >
-          <button
-            type="button"
-            class="app-topbar-canvas"
-            id="btn-canvas-only"
-            title="패널·안내를 숨기고 캔버스만 표시"
-            aria-pressed="false"
-          >
-            화면만
-          </button>
           <div class="lang-switch" id="lang-switch" role="group">
             <button type="button" id="lang-ko" aria-pressed="true">KO</button>
             <button type="button" id="lang-en" aria-pressed="false">EN</button>
@@ -746,7 +726,17 @@
           class="stage"
           role="img"
           aria-label="물방울이 신문 위에 올라간 WebGL 캔버스"
-        ></div>
+        >
+          <button
+            type="button"
+            class="app-topbar-canvas"
+            id="btn-canvas-only"
+            title="패널·안내를 숨기고 캔버스만 표시"
+            aria-pressed="false"
+          >
+            화면만
+          </button>
+        </div>
         <div class="bg-editor" aria-label="신문 본문 및 물방울 설정">
           <div
             class="option-tabs"
@@ -964,16 +954,6 @@
         </div>
       </div>
     </div>
-
-    <button
-      type="button"
-      id="btn-show-panels-floating"
-      class="fab-show-options"
-      hidden
-      title="설정 패널 다시 표시"
-    >
-      옵션 보이기
-    </button>
 
     <details class="guide-wrap" id="guide-wrap">
       <summary>

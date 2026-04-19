@@ -36,6 +36,8 @@ function syncPanelsForViewport() {
   }
 }
 
+import { syncCanvasOnlyButton } from './i18n'
+
 const CANVAS_ONLY_KEY = 'kimchang-ui-canvas-only'
 
 function readStoredCanvasOnly(): boolean {
@@ -57,13 +59,10 @@ function persistCanvasOnly(on: boolean) {
 function applyCanvasOnly(on: boolean) {
   document.body.classList.toggle('ui-canvas-only', on)
   const topBtn = document.getElementById('btn-canvas-only')
-  const floatBtn = document.getElementById('btn-show-panels-floating')
   if (topBtn) {
     topBtn.setAttribute('aria-pressed', on ? 'true' : 'false')
   }
-  if (floatBtn) {
-    floatBtn.hidden = !on
-  }
+  syncCanvasOnlyButton(on)
   requestAnimationFrame(() => {
     window.dispatchEvent(new Event('resize'))
   })
@@ -90,7 +89,6 @@ export function initUiChrome(onLayout: () => void): void {
   })
 
   const topBtn = document.getElementById('btn-canvas-only')
-  const floatBtn = document.getElementById('btn-show-panels-floating')
 
   const toggle = () => {
     const next = !document.body.classList.contains('ui-canvas-only')
@@ -107,7 +105,6 @@ export function initUiChrome(onLayout: () => void): void {
   }
 
   topBtn?.addEventListener('click', toggle)
-  floatBtn?.addEventListener('click', toggle)
 
   if (readStoredCanvasOnly()) {
     applyCanvasOnly(true)

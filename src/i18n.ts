@@ -176,6 +176,20 @@ export function getLangDict(lang: Lang): Dict {
   return DICTS[lang]
 }
 
+/** 화면만 모드일 때는 같은 버튼을 「옵션 보이기」로 표시 */
+export function syncCanvasOnlyButton(isCanvasOnly: boolean): void {
+  const btn = document.getElementById('btn-canvas-only')
+  if (!btn) return
+  const d = DICTS[currentLang]
+  if (isCanvasOnly) {
+    btn.textContent = d.btnShowOptions
+    btn.setAttribute('title', d.titleShowOptions)
+  } else {
+    btn.textContent = d.btnCanvasOnly
+    btn.setAttribute('title', d.titleCanvasOnly)
+  }
+}
+
 export function applyPageLanguage(lang: Lang): void {
   currentLang = lang
   document.documentElement.lang = lang === 'en' ? 'en' : 'ko'
@@ -301,16 +315,7 @@ export function applyPageLanguage(lang: Lang): void {
   const tablist = document.getElementById('option-tablist')
   if (tablist) tablist.setAttribute('aria-label', d.ariaTablist)
 
-  const btnCanvas = document.getElementById('btn-canvas-only')
-  if (btnCanvas) {
-    btnCanvas.textContent = d.btnCanvasOnly
-    btnCanvas.setAttribute('title', d.titleCanvasOnly)
-  }
-  const btnFab = document.getElementById('btn-show-panels-floating')
-  if (btnFab) {
-    btnFab.textContent = d.btnShowOptions
-    btnFab.setAttribute('title', d.titleShowOptions)
-  }
+  syncCanvasOnlyButton(document.body.classList.contains('ui-canvas-only'))
 }
 
 export function initI18nUi(
