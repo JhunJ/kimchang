@@ -127,20 +127,18 @@ void main() {
     float axisPerp = Rm * mix(1.0, 0.65, elev);
     float eNorm = sqrt((qa * qa) / (axisAlong * axisAlong) + (qp * qp) / (axisPerp * axisPerp));
     float shBlob = smoothstep(1.06, 0.13, eNorm) * (1.0 - maskApprox * 0.93) * halfPlane * sunMask;
-    float focusR = anchorR + Rm * mix(0.06, 0.28, elev);
-    vec2 shC = c + shadowOut * focusR;
-    vec2 qh = frag - shC;
-    float ha = dot(qh, shadowOut);
-    float hp = dot(qh, perpU);
+    float ha = qa;
+    float hp = qp;
     float sigmaAlong = max(axisAlong * 0.52, Rm * 0.5);
-    float sigmaPerp = max(axisPerp * 0.58, Rm * 0.42);
+    float sigmaPerp = max(axisPerp * 1.45, Rm * 1.02);
     float mDrop = 1.0 - maskApprox * 0.9;
     float tHot =
       (ha * ha) / max(1.0, sigmaAlong * sigmaAlong) + (hp * hp) / max(1.0, sigmaPerp * sigmaPerp);
     float gWide = exp(-tHot) * mix(0.82, 1.0, elev);
     float gCore = exp(-tHot / 0.18) * mix(0.75, 0.98, elev);
     float gBlast = exp(-tHot / 0.065) * mix(1.05, 1.35, elev);
-    float hot = min(1.0, mDrop * (gWide + gCore + gBlast));
+    float caEnv = smoothstep(1.12, 0.38, eNorm);
+    float hot = min(1.0, mDrop * (gWide + gCore + gBlast) * caEnv);
     shAcc = max(shAcc, shBlob);
     cAcc = max(cAcc, hot * sqrt(shBlob + 0.04));
     }
@@ -150,15 +148,15 @@ void main() {
   vec3 base = texture2D(u_tex, toTexUv(v_uv)).rgb;
   base = mix(base, base * vec3(0.58, 0.42, 0.28), min(1.0, shAcc * u_shadowMix));
   float caAmt = min(0.82, cAcc * u_causticMix);
-  vec3 caWarm = vec3(0.9, 0.82, 0.62);
-  vec3 caPeak = vec3(1.0, 0.99, 0.96);
+  vec3 caWarm = vec3(0.94, 0.76, 0.46);
+  vec3 caPeak = vec3(1.0, 0.94, 0.78);
   float caPeakW = smoothstep(0.02, 0.28, caAmt);
   float caWhiteW = smoothstep(0.06, 0.38, caAmt);
   vec3 caCol = mix(caWarm, caPeak, caPeakW);
-  caCol = mix(caCol, vec3(1.0), caWhiteW * 0.97);
+  caCol = mix(caCol, vec3(1.0, 0.99, 0.92), caWhiteW * 0.97);
   float caBloom = smoothstep(0.12, 0.52, caAmt);
   base += caCol * caAmt;
-  base += vec3(1.0, 0.998, 0.99) * caAmt * caBloom * 0.38;
+  base += vec3(1.0, 0.96, 0.82) * caAmt * caBloom * 0.38;
 
   float Lxy = mix(0.38, 0.93, lowSun);
   float Lz = mix(0.84, 0.12, lowSun);
