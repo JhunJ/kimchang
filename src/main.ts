@@ -225,9 +225,20 @@ function readStoredFontPx(): number {
   return clampFontSizePx(n)
 }
 
+/** 좁은 화면에서는 캔버스 높이를 줄여 본문·슬라이더가 같은 화면에 보이도록 */
+function canvasSizeForViewport(): { w: number; h: number } {
+  const vw = window.innerWidth
+  const vh = window.innerHeight
+  const w = Math.min(1100, Math.max(200, vw - 8))
+  if (vw <= 640) {
+    const h = Math.min(680, Math.max(240, Math.floor(vh * 0.42)))
+    return { w, h }
+  }
+  return { w, h: Math.min(1400, Math.max(320, vh - 8)) }
+}
+
 function main() {
-  const W = Math.min(1100, window.innerWidth - 8)
-  const H = Math.min(1400, window.innerHeight - 8)
+  const { w: W, h: H } = canvasSizeForViewport()
   const initialBg =
     localStorage.getItem(BG_TEXT_STORAGE_KEY) ?? DEFAULT_BACKGROUND_TEXT
   const initialFontPx = readStoredFontPx()
@@ -624,8 +635,9 @@ function main() {
     if (resizeT !== undefined) window.clearTimeout(resizeT)
     resizeT = window.setTimeout(() => {
       resizeT = undefined
-      canvas.width = Math.min(1100, window.innerWidth - 8)
-      canvas.height = Math.min(1400, window.innerHeight - 8)
+      const { w, h } = canvasSizeForViewport()
+      canvas.width = w
+      canvas.height = h
       resetSimulation(canvas.width, canvas.height)
       wet.resize(canvas.width, canvas.height)
       wet.clear()
