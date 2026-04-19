@@ -15,7 +15,7 @@
 
 ## 스크린샷 (최신 UI)
 
-![김창열 물방울 데모 — 메인 화면](public/docs/screenshot.png)
+![김창열 물방울 데모 — 메인 화면](https://raw.githubusercontent.com/JhunJ/kimchang/main/public/docs/screenshot.png?v=20260419)
 
 ---
 
@@ -105,7 +105,8 @@ npm run preview       # 빌드 미리보기
 
 - 저장소 **About → Description** 에 **라이브 체험 전체 URL**(`https://jhunj.github.io/kimchang/`)이 들어가 있도록 해 두었습니다. (웹앱 화면 안이 아니라 **깃허브 저장소 설명란**용입니다.)
 - **Website** 필드에도 동일한 주소가 연결되어 있습니다.
-- **Settings → General → Social preview** 에 `public/docs/screenshot.png` 를 올리면 링크 카드에 썸네일이 붙습니다.
+- **Settings → General → Social preview** 에서 아래 이미지 URL을 쓰거나, 동일 파일을 업로드하면 링크 카드 썸네일에 쓸 수 있습니다:  
+  `https://raw.githubusercontent.com/JhunJ/kimchang/main/public/docs/screenshot.png`
 
 ---
 
@@ -134,7 +135,7 @@ Runs **in the browser** with no install. (Mobile and desktop.)
 
 ## Screenshot (latest UI)
 
-![Kim Tschang-yeul water droplet demo — main screen](public/docs/screenshot.png)
+![Kim Tschang-yeul water droplet demo — main screen](https://raw.githubusercontent.com/JhunJ/kimchang/main/public/docs/screenshot.png?v=20260419)
 
 ---
 
@@ -224,7 +225,8 @@ You can also use the **mouse wheel** on the slider rows (desktop) to tweak font 
 
 - The repo **About → Description** includes the **full live URL** (`https://jhunj.github.io/kimchang/`) for discovery (not only inside the web app).
 - The **Website** field points to the same URL.
-- **Settings → General → Social preview**: upload `public/docs/screenshot.png` for link-card thumbnails.
+- **Settings → General → Social preview**: use or upload the same asset as the README image:  
+  `https://raw.githubusercontent.com/JhunJ/kimchang/main/public/docs/screenshot.png`
 
 ---
 
