@@ -116,23 +116,27 @@ void main() {
     vec2 fromC = frag - c;
     float towardShadow = dot(fromC, shadowOut);
     float sunWard = dot(fromC, lfN);
-    float halfPlane = smoothstep(-Rm * 0.18, Rm * 0.22, towardShadow);
-    float sunMask = 1.0 - 0.94 * smoothstep(-Rm * 0.12, Rm * 0.88, sunWard);
-    vec2 shAnchor = c + shadowOut * Rm * mix(0.58, 0.2, elev);
+    float halfPlane = smoothstep(-Rm * 0.36, Rm * 0.48, towardShadow);
+    float sunMask = 1.0 - 0.66 * smoothstep(-Rm * 0.2, Rm * 1.05, sunWard);
+    float anchorR = Rm * mix(0.38, 0.1, elev);
+    vec2 shAnchor = c + shadowOut * anchorR;
     vec2 q = frag - shAnchor;
     float qa = dot(q, shadowOut);
     float qp = dot(q, perpU);
-    float axisAlong = Rm * mix(3.95, 1.22, elev);
-    float axisPerp = Rm * mix(0.48, 0.95, elev);
+    float axisAlong = Rm * mix(5.1, 1.25, elev);
+    float axisPerp = Rm * mix(1.0, 0.65, elev);
     float eNorm = sqrt((qa * qa) / (axisAlong * axisAlong) + (qp * qp) / (axisPerp * axisPerp));
-    float shBlob = smoothstep(1.1, 0.14, eNorm) * (1.0 - maskApprox * 0.93) * halfPlane * sunMask;
-    float hotFall = mix(0.88, 1.0, elev);
-    vec2 hotAnchor = c + shadowOut * Rm * mix(1.02, 0.42, elev);
-    vec2 qh = frag - hotAnchor;
-    float ha = dot(qh, shadowOut) / max(Rm * mix(0.55, 0.26, elev), 0.5);
-    float hp = dot(qh, perpU) / max(Rm * mix(0.36, 0.52, elev), 0.5);
-    float hNorm = sqrt(ha * ha + hp * hp);
-    float hot = exp(-hNorm * hNorm * mix(3.8, 6.2, elev)) * (1.0 - maskApprox * 0.9) * hotFall * halfPlane;
+    float shBlob = smoothstep(1.06, 0.13, eNorm) * (1.0 - maskApprox * 0.93) * halfPlane * sunMask;
+    float focusR = anchorR + Rm * mix(0.06, 0.28, elev);
+    vec2 shC = c + shadowOut * focusR;
+    float dSh = length(frag - shC);
+    float hotSigma = Rm * Rm * (1.4427 * mix(1.0, 0.98, elev));
+    float mDrop = 1.0 - maskApprox * 0.9;
+    float tHot = (dSh * dSh) / max(1.0, hotSigma);
+    float gWide = exp(-tHot) * mix(0.82, 1.0, elev);
+    float gCore = exp(-tHot / 0.14) * mix(0.75, 0.98, elev);
+    float gBlast = exp(-tHot / 0.055) * mix(1.05, 1.35, elev);
+    float hot = min(1.0, mDrop * (gWide + gCore + gBlast));
     shAcc = max(shAcc, shBlob);
     cAcc = max(cAcc, hot * sqrt(shBlob + 0.04));
     }
@@ -140,8 +144,17 @@ void main() {
   }
 
   vec3 base = texture2D(u_tex, toTexUv(v_uv)).rgb;
-  base = mix(base, base * vec3(0.76, 0.60, 0.45), min(1.0, shAcc * u_shadowMix));
-  base += vec3(1.0, 0.76, 0.42) * min(0.52, cAcc * u_causticMix);
+  base = mix(base, base * vec3(0.58, 0.42, 0.28), min(1.0, shAcc * u_shadowMix));
+  float caAmt = min(0.82, cAcc * u_causticMix);
+  vec3 caWarm = vec3(0.9, 0.82, 0.62);
+  vec3 caPeak = vec3(1.0, 0.99, 0.96);
+  float caPeakW = smoothstep(0.02, 0.28, caAmt);
+  float caWhiteW = smoothstep(0.06, 0.38, caAmt);
+  vec3 caCol = mix(caWarm, caPeak, caPeakW);
+  caCol = mix(caCol, vec3(1.0), caWhiteW * 0.97);
+  float caBloom = smoothstep(0.12, 0.52, caAmt);
+  base += caCol * caAmt;
+  base += vec3(1.0, 0.998, 0.99) * caAmt * caBloom * 0.38;
 
   float Lxy = mix(0.38, 0.93, lowSun);
   float Lz = mix(0.84, 0.12, lowSun);
@@ -213,8 +226,6 @@ void main() {
         vec3 dropletCol = vec3(baseR.r, baseG.g, baseB.b);
 
         vec3 bgLocal = texture2D(u_tex, toTexUv(v_uv)).rgb;
-        float glass = mask * u_glassBlend;
-        dropletCol = mix(bgLocal, dropletCol, glass);
 
         vec2 warmPt = c - lfN * min(urx, ury) * mix(0.52, 0.38, elev);
         float pr = min(urx, ury) * 0.2;
@@ -236,6 +247,13 @@ void main() {
         float ring = mask * (1.0 - inner);
         dropletCol += vec3(0.62, 0.84, 1.0) * isSel * ring * 0.22;
         dropletCol *= (1.0 + 0.028 * isSel * mask);
+
+        float luD = dot(clamp(dropletCol, 0.0, 1.0), vec3(0.299, 0.587, 0.114));
+        float edgeOpaq = mix(0.48, 1.18, pow(max(0.0, 1.0 - cosT), 1.25));
+        float brightW = smoothstep(0.02, 0.78, luD);
+        float glassVar = mix(0.02, 1.22, pow(brightW, 0.82)) * edgeOpaq;
+        float glassEff = min(1.0, mask * u_glassBlend * glassVar);
+        dropletCol = mix(bgLocal, dropletCol, glassEff);
 
         base = mix(base, dropletCol, mask);
       }
@@ -516,7 +534,7 @@ function main() {
   let glassPct = readStoredPct(
     GLASS_PCT_STORAGE_KEY,
     DEFAULT_GLASS_PCT,
-    25,
+    0,
     100,
   )
   let vfxShadowPct = readStoredPct(
@@ -536,11 +554,12 @@ function main() {
   function syncLightingUniforms() {
     const rad = (lightDeg * Math.PI) / 180
     g.uniform1f(uLightAngle, rad)
-    const glassBlend = 0.34 + (glassPct / 100) * 0.56
+    const t = glassPct / 100
+    const glassBlend = 0.05 + t * 0.95
     g.uniform1f(uGlassBlend, glassBlend)
     const sm = (vfxShadowPct / 100) * 0.82
     g.uniform1f(uShadowMix, sm)
-    g.uniform1f(uCausticMix, (vfxShadowPct / 100) * 0.64)
+    g.uniform1f(uCausticMix, (vfxShadowPct / 100) * 0.42)
     g.uniform1f(uSatInDrop, (satPct / 100) * 0.44)
     g.uniform1f(uSunElevation, sunElevPct / 100)
   }
