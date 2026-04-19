@@ -129,13 +129,17 @@ void main() {
     float shBlob = smoothstep(1.06, 0.13, eNorm) * (1.0 - maskApprox * 0.93) * halfPlane * sunMask;
     float focusR = anchorR + Rm * mix(0.06, 0.28, elev);
     vec2 shC = c + shadowOut * focusR;
-    float dSh = length(frag - shC);
-    float hotSigma = Rm * Rm * (1.4427 * mix(1.0, 0.98, elev));
+    vec2 qh = frag - shC;
+    float ha = dot(qh, shadowOut);
+    float hp = dot(qh, perpU);
+    float sigmaAlong = max(axisAlong * 0.52, Rm * 0.5);
+    float sigmaPerp = max(axisPerp * 0.58, Rm * 0.42);
     float mDrop = 1.0 - maskApprox * 0.9;
-    float tHot = (dSh * dSh) / max(1.0, hotSigma);
+    float tHot =
+      (ha * ha) / max(1.0, sigmaAlong * sigmaAlong) + (hp * hp) / max(1.0, sigmaPerp * sigmaPerp);
     float gWide = exp(-tHot) * mix(0.82, 1.0, elev);
-    float gCore = exp(-tHot / 0.14) * mix(0.75, 0.98, elev);
-    float gBlast = exp(-tHot / 0.055) * mix(1.05, 1.35, elev);
+    float gCore = exp(-tHot / 0.18) * mix(0.75, 0.98, elev);
+    float gBlast = exp(-tHot / 0.065) * mix(1.05, 1.35, elev);
     float hot = min(1.0, mDrop * (gWide + gCore + gBlast));
     shAcc = max(shAcc, shBlob);
     cAcc = max(cAcc, hot * sqrt(shBlob + 0.04));
@@ -295,7 +299,7 @@ const SAT_PCT_STORAGE_KEY = 'kimchang-sat-pct'
 const SUN_ELEV_PCT_STORAGE_KEY = 'kimchang-sun-elev-pct'
 
 const DEFAULT_LIGHT_DEG = 180
-const DEFAULT_GLASS_PCT = 72
+const DEFAULT_GLASS_PCT = 100
 const DEFAULT_VFX_SHADOW_PCT = 68
 const DEFAULT_SAT_PCT = 38
 /** 0 = 낮은 태양(그림자 김), 100 = 높은 태양(그림자 짧음) */
