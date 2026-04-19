@@ -112,3 +112,120 @@ npm run preview       # 빌드 미리보기
 ## 라이선스
 
 별도 라이선스 파일이 없습니다. 필요하면 저장소에 `LICENSE`를 추가하세요.
+
+---
+
+# English
+
+## Live demo (try it first)
+
+### **https://jhunj.github.io/kimchang/**
+
+Runs **in the browser** with no install. (Mobile and desktop.)
+
+[![Open live demo](https://img.shields.io/badge/Open%20demo-jhunj.github.io/kimchang-2ea043?style=for-the-badge&logo=githubpages&logoColor=white)](https://jhunj.github.io/kimchang/)
+
+[![GitHub Pages deploy](https://github.com/JhunJ/kimchang/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/JhunJ/kimchang/actions/workflows/deploy-pages.yml)
+[![Source code](https://img.shields.io/badge/Source-GitHub-181717?logo=github)](https://github.com/JhunJ/kimchang)
+
+---
+
+## Screenshot (latest UI)
+
+![Kim Tschang-yeul water droplet WebGL demo — main screen](public/docs/screenshot.png)
+
+---
+
+An interactive **WebGL** demo of **water droplets** on **newsprint-like text**, with refraction and highlights. It is an **unofficial** web experiment inspired by the water-on-newspaper aesthetic of Korean modern artist **Kim Tschang-yeul** (1929–2021). It is **not** an official collaboration with the artist or museums.
+
+---
+
+## What it does
+
+- Renders **magazine/newspaper-style body text** as the background texture (paragraph layout via `@chenglou/pretext`).
+- **Droplets** are shaded as hemispherical lenses; the text **refracts** underneath.
+- Moving droplets leave a subtle **wet trail**.
+- Near rest, a very light **wind-like jitter** may appear.
+- Increasing the **droplet count** keeps **existing** droplets in place and adds new ones only in **empty** space (no overlap).
+
+---
+
+## How to run
+
+```bash
+npm install
+npm run dev           # local dev (base: /)
+npm run build         # dist (local / root deploy)
+npm run build:pages   # GitHub Pages (/kimchang/ base)
+npm run preview       # preview build
+```
+
+- For **GitHub Pages**, use `npm run build:pages` or `VITE_BASE_PATH=/kimchang/ npm run build`, same as CI.
+- **Deploy**: `.github/workflows/deploy-pages.yml` publishes `dist` on pushes to `main`.
+
+---
+
+## UI layout
+
+| Area | Description |
+|------|-------------|
+| **Large canvas (top)** | WebGL view. Drag and tap here. |
+| **Panel below** | Newspaper text, font size, droplet size & count sliders |
+| **Details at bottom** (in the app) | Longer copy, artist note, links, **environment check** button |
+
+Settings (text and sliders) are saved in **localStorage**.
+
+The web app also offers **KO / EN** in the top bar (stored in the browser).
+
+---
+
+## Controls (by case)
+
+### One droplet
+
+- **Drag** with pointer down: the droplet follows.
+- Short **click/tap** also moves it to that spot.
+
+### Two or more droplets
+
+- **Tap a droplet**: it becomes selected (subtle highlight).
+- **Tap the same droplet again**: clears selection.
+- **With a selection, tap empty space**: **only the selected** droplet moves. (With no selection, tapping empty space does nothing.)
+- **Tap another droplet**: selection moves there.
+
+You can also use the **mouse wheel** on the slider rows (desktop) to tweak font size, droplet size, and count.
+
+---
+
+## Relationship to Kim Tschang-yeul’s art
+
+**Kim Tschang-yeul** (also spelled **Kim Tschang-yeul**, etc.) is widely known for meticulous **water droplets** on grounds that often include **newsprint, Hanja, and calligraphy**. This repository is a **digital homage**—it does not try to reproduce physical paint, scale, or brushwork.
+
+### Links
+
+- [Korean Wikipedia — Kim Chang-yeol (painter)](https://ko.wikipedia.org/wiki/%EA%B9%80%EC%B0%BD%EC%97%B4_(%ED%99%94%EA%B0%80))
+- [English Wikipedia — Kim Tschang-yeul](https://en.wikipedia.org/wiki/Kim_Tschang-yeul)
+- [Kim Tschang-yeul Art Museum (Jeju)](https://kimtschang-yeul.jeju.go.kr/)
+- [National Museum of Modern and Contemporary Art (MMCA)](https://www.mmca.go.kr/) — useful for collection and exhibition search
+
+---
+
+## Tech stack
+
+- **TypeScript**, **Vite**
+- **WebGL** (custom vertex/fragment shaders)
+- **@chenglou/pretext** — body text layout
+
+---
+
+## GitHub discovery & Social preview
+
+- The repo **About → Description** includes the **full live URL** (`https://jhunj.github.io/kimchang/`) for discovery (not only inside the web app).
+- The **Website** field points to the same URL.
+- **Settings → General → Social preview**: upload `public/docs/screenshot.png` for link-card thumbnails.
+
+---
+
+## License
+
+No `LICENSE` file is included yet; add one to the repo if you need an explicit terms.
