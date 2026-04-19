@@ -15,7 +15,7 @@
 
 ## 스크린샷 (최신 UI)
 
-![김창열 물방울 WebGL 데모 — 라이브 체험 링크·캔버스](public/docs/screenshot.png)
+![김창열 물방울 WebGL 데모 — 메인 화면](public/docs/screenshot.png)
 
 ---
 
@@ -105,7 +105,8 @@ npm run preview       # 빌드 미리보기
 
 ## GitHub에서 검색·노출·Social preview
 
-- 저장소 **About**에 **Website** 로 라이브 URL을 넣어 두었습니다.
+- 저장소 **About → Description** 에 **라이브 체험 전체 URL**(`https://jhunj.github.io/kimchang/`)이 들어가 있도록 해 두었습니다. (웹앱 화면 안이 아니라 **깃허브 저장소 설명란**용입니다.)
+- **Website** 필드에도 동일한 주소가 연결되어 있습니다.
 - **Settings → General → Social preview** 에 `public/docs/screenshot.png` 를 올리면 링크 카드에 썸네일이 붙습니다.
 
 ---
