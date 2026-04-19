@@ -31,6 +31,13 @@ import {
 } from './newspaper'
 import { WetTrail } from './wetTrail'
 import { attachGuideSelfTest } from './guideSelfTest'
+import {
+  applyPageLanguage,
+  formatDropCountVal,
+  getCurrentLang,
+  getStoredLang,
+  initI18nUi,
+} from './i18n'
 
 const VERT = `
 attribute vec2 a_pos;
@@ -65,6 +72,11 @@ uniform float u_ripplePhase[MAX_DROPS];
 uniform int u_selectedIdx;
 uniform int u_highlightSel;
 uniform sampler2D u_wet;
+uniform float u_lightAngle;
+uniform float u_glassBlend;
+uniform float u_shadowMix;
+uniform float u_causticMix;
+uniform float u_satInDrop;
 
 vec2 toTexUv(vec2 uv) {
   float cw = u_resolution.x;
@@ -79,7 +91,39 @@ vec2 toTexUv(vec2 uv) {
 
 void main() {
   vec2 frag = v_uv * u_resolution;
+  vec2 lf = vec2(sin(u_lightAngle), -cos(u_lightAngle));
+  vec2 lfN = normalize(lf + vec2(1e-5));
+
+  float shAcc = 0.0;
+  float cAcc = 0.0;
+  for (int si = 0; si < MAX_DROPS; si++) {
+    if (si < u_dropCount) {
+    float urx = u_rx[si];
+    float ury = u_ry[si];
+    if (urx > 0.5) {
+    vec2 c = vec2(u_centerX[si], u_centerY[si]);
+    vec2 d0 = frag - c;
+    vec2 p = vec2(u_cosA[si] * d0.x - u_sinA[si] * d0.y, u_sinA[si] * d0.x + u_cosA[si] * d0.y);
+    float ell = length(vec2(p.x / urx, p.y / ury));
+    float maskApprox = smoothstep(1.14, 0.0, ell);
+    float Rm = max(urx, ury);
+    vec2 shC = c - lfN * Rm * 1.38;
+    float dSh = length(frag - shC);
+    float elong = 1.0 + 0.42 * abs(dot(normalize(frag - shC + vec2(1e-3)), lfN));
+    float shBlob = smoothstep(Rm * 3.15 * elong, Rm * 0.13, dSh) * (1.0 - maskApprox * 0.93);
+    float hot = exp(-(dSh * dSh) / max(1.0, Rm * Rm * 1.05)) * (1.0 - maskApprox * 0.9);
+    shAcc = max(shAcc, shBlob);
+    cAcc = max(cAcc, hot * sqrt(shBlob + 0.04));
+    }
+    }
+  }
+
   vec3 base = texture2D(u_tex, toTexUv(v_uv)).rgb;
+  base = mix(base, base * vec3(0.76, 0.60, 0.45), min(1.0, shAcc * u_shadowMix));
+  base += vec3(1.0, 0.76, 0.42) * min(0.52, cAcc * u_causticMix);
+
+  vec3 L = normalize(vec3(lfN.x * 0.78, lfN.y * 0.78, 0.58));
+  vec3 V = vec3(0.0, 0.0, 1.0);
 
   for (int idx = 0; idx < MAX_DROPS; idx++) {
     if (idx < u_dropCount) {
@@ -127,10 +171,8 @@ void main() {
           float zs = sqrt(max(0.0, Rm * Rm - ru * ru));
           Nsun = normalize(vec3(d0.x, d0.y, zs));
         }
-        vec3 V = vec3(0.0, 0.0, 1.0);
-        vec3 L = normalize(vec3(-0.38, -0.52, 0.76));
         vec3 Hh = normalize(L + V);
-        float specW = pow(max(0.0, dot(Nsun, Hh)), 118.0) * mask * (0.45 + 0.55 * inner);
+        float specW = pow(max(0.0, dot(Nsun, Hh)), 122.0) * mask * (0.4 + 0.6 * inner);
         float cosT = max(dot(N, V), 0.0);
         float etaI = 1.0;
         float etaT = u_ior[idx];
@@ -148,18 +190,23 @@ void main() {
         vec3 dropletCol = vec3(baseR.r, baseG.g, baseB.b);
 
         vec3 bgLocal = texture2D(u_tex, toTexUv(v_uv)).rgb;
-        dropletCol = mix(bgLocal, dropletCol, mask);
+        float glass = mask * u_glassBlend;
+        dropletCol = mix(bgLocal, dropletCol, glass);
 
-        vec2 sh = c + vec2(-0.018, -0.026) * u_resolution.y;
-        float pr = min(urx, ury) * 0.18;
-        float shA = smoothstep(pr * 10.0, 0.0, length(frag - sh)) * 0.42 * (1.0 - inner * 0.35);
-        dropletCol = mix(dropletCol, dropletCol * vec3(0.48, 0.36, 0.26), shA);
+        vec2 warmPt = c - lfN * min(urx, ury) * 0.42;
+        float pr = min(urx, ury) * 0.2;
+        float shA = smoothstep(pr * 9.0, 0.0, length(frag - warmPt)) * 0.38 * (1.0 - inner * 0.4);
+        dropletCol = mix(dropletCol, dropletCol * vec3(0.52, 0.38, 0.24), shA);
 
-        dropletCol += vec3(0.97, 0.98, 1.0) * specW * 0.14;
-        dropletCol = mix(dropletCol, vec3(1.0), fres * mask * 0.075);
-        dropletCol += vec3(0.9, 0.93, 1.0) * rimW * 0.11;
+        float lu = dot(dropletCol, vec3(0.299, 0.587, 0.114));
+        float sFac = clamp(1.0 + u_satInDrop * mask, 1.0, 1.42);
+        dropletCol = mix(vec3(lu), dropletCol, sFac);
 
-        float edge = smoothstep(aa * 0.95, -aa * 0.35, dSurf) * (1.0 - inner) * 0.18;
+        dropletCol += vec3(0.97, 0.98, 1.0) * specW * 0.11;
+        dropletCol = mix(dropletCol, vec3(1.0), fres * mask * 0.055);
+        dropletCol += vec3(0.9, 0.93, 1.0) * rimW * 0.085;
+
+        float edge = smoothstep(aa * 0.95, -aa * 0.35, dSurf) * (1.0 - inner) * 0.12;
         dropletCol += edge;
 
         float isSel = float(idx == u_selectedIdx) * float(u_highlightSel);
@@ -200,6 +247,44 @@ const BG_TEXT_STORAGE_KEY = 'kimchang-newspaper-text'
 const BG_FONT_STORAGE_KEY = 'kimchang-newspaper-font-px'
 const DROP_SIZE_STORAGE_KEY = 'kimchang-drop-size-scale'
 const DROP_COUNT_STORAGE_KEY = 'kimchang-drop-count'
+const LIGHT_DEG_STORAGE_KEY = 'kimchang-light-deg'
+const GLASS_PCT_STORAGE_KEY = 'kimchang-glass-pct'
+const VFX_SHADOW_PCT_STORAGE_KEY = 'kimchang-vfx-shadow-pct'
+const SAT_PCT_STORAGE_KEY = 'kimchang-sat-pct'
+
+const DEFAULT_LIGHT_DEG = 318
+const DEFAULT_GLASS_PCT = 72
+const DEFAULT_VFX_SHADOW_PCT = 68
+const DEFAULT_SAT_PCT = 38
+
+function readStoredLightDeg(): number {
+  try {
+    const s = localStorage.getItem(LIGHT_DEG_STORAGE_KEY)
+    if (s == null) return DEFAULT_LIGHT_DEG
+    const n = parseFloat(s)
+    if (Number.isNaN(n)) return DEFAULT_LIGHT_DEG
+    return ((n % 360) + 360) % 360
+  } catch {
+    return DEFAULT_LIGHT_DEG
+  }
+}
+
+function readStoredPct(
+  key: string,
+  def: number,
+  min: number,
+  max: number,
+): number {
+  try {
+    const s = localStorage.getItem(key)
+    if (s == null) return def
+    const n = parseInt(s, 10)
+    if (Number.isNaN(n)) return def
+    return Math.max(min, Math.min(max, n))
+  } catch {
+    return def
+  }
+}
 
 function readStoredDropCount(): number {
   const s = localStorage.getItem(DROP_COUNT_STORAGE_KEY)
@@ -238,6 +323,8 @@ function canvasSizeForViewport(): { w: number; h: number } {
 }
 
 function main() {
+  applyPageLanguage(getStoredLang())
+
   const { w: W, h: H } = canvasSizeForViewport()
   const initialBg =
     localStorage.getItem(BG_TEXT_STORAGE_KEY) ?? DEFAULT_BACKGROUND_TEXT
@@ -379,7 +466,149 @@ function main() {
   const uRipplePhase = g.getUniformLocation(prog, 'u_ripplePhase')
   const uSelectedIdx = g.getUniformLocation(prog, 'u_selectedIdx')
   const uHighlightSel = g.getUniformLocation(prog, 'u_highlightSel')
+  const uLightAngle = g.getUniformLocation(prog, 'u_lightAngle')
+  const uGlassBlend = g.getUniformLocation(prog, 'u_glassBlend')
+  const uShadowMix = g.getUniformLocation(prog, 'u_shadowMix')
+  const uCausticMix = g.getUniformLocation(prog, 'u_causticMix')
+  const uSatInDrop = g.getUniformLocation(prog, 'u_satInDrop')
   g.uniform2f(uTexSize, texCanvas.width, texCanvas.height)
+
+  let lightDeg = readStoredLightDeg()
+  let glassPct = readStoredPct(
+    GLASS_PCT_STORAGE_KEY,
+    DEFAULT_GLASS_PCT,
+    25,
+    100,
+  )
+  let vfxShadowPct = readStoredPct(
+    VFX_SHADOW_PCT_STORAGE_KEY,
+    DEFAULT_VFX_SHADOW_PCT,
+    0,
+    100,
+  )
+  let satPct = readStoredPct(SAT_PCT_STORAGE_KEY, DEFAULT_SAT_PCT, 0, 100)
+
+  function syncLightingUniforms() {
+    const rad = (lightDeg * Math.PI) / 180
+    g.uniform1f(uLightAngle, rad)
+    const glassBlend = 0.34 + (glassPct / 100) * 0.56
+    g.uniform1f(uGlassBlend, glassBlend)
+    const sm = (vfxShadowPct / 100) * 0.82
+    g.uniform1f(uShadowMix, sm)
+    g.uniform1f(uCausticMix, (vfxShadowPct / 100) * 0.64)
+    g.uniform1f(uSatInDrop, (satPct / 100) * 0.44)
+  }
+
+  function persistLighting() {
+    try {
+      localStorage.setItem(LIGHT_DEG_STORAGE_KEY, String(lightDeg))
+      localStorage.setItem(GLASS_PCT_STORAGE_KEY, String(glassPct))
+      localStorage.setItem(VFX_SHADOW_PCT_STORAGE_KEY, String(vfxShadowPct))
+      localStorage.setItem(SAT_PCT_STORAGE_KEY, String(satPct))
+    } catch {
+      /* ignore */
+    }
+  }
+
+  function updateLightDialCss() {
+    const dialEl = document.getElementById('light-dial')
+    if (dialEl) {
+      dialEl.style.setProperty('--light-deg', `${lightDeg.toFixed(2)}deg`)
+      dialEl.setAttribute('aria-valuenow', String(Math.round(lightDeg)))
+    }
+    const degEl = document.getElementById('light-dial-deg')
+    if (degEl) degEl.textContent = `${Math.round(lightDeg)}°`
+  }
+
+  function attachLightDial() {
+    const dial = document.getElementById('light-dial')
+    if (!dial) return
+    let dragging = false
+    const setFromClient = (cx: number, cy: number) => {
+      const r = dial.getBoundingClientRect()
+      const mx = r.left + r.width * 0.5
+      const my = r.top + r.height * 0.5
+      let deg = (Math.atan2(cx - mx, -(cy - my)) * 180) / Math.PI
+      if (deg < 0) deg += 360
+      lightDeg = deg
+      updateLightDialCss()
+      persistLighting()
+    }
+    dial.addEventListener('pointerdown', (e) => {
+      dragging = true
+      dial.setPointerCapture(e.pointerId)
+      setFromClient(e.clientX, e.clientY)
+    })
+    dial.addEventListener('pointermove', (e) => {
+      if (!dragging) return
+      setFromClient(e.clientX, e.clientY)
+    })
+    const end = () => {
+      dragging = false
+    }
+    dial.addEventListener('pointerup', end)
+    dial.addEventListener('pointercancel', end)
+    dial.addEventListener('keydown', (e) => {
+      const step = e.shiftKey ? 5 : 1
+      if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
+        lightDeg = (lightDeg + step + 360) % 360
+        updateLightDialCss()
+        persistLighting()
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
+        lightDeg = (lightDeg - step + 360) % 360
+        updateLightDialCss()
+        persistLighting()
+      }
+    })
+    updateLightDialCss()
+  }
+
+  const glassRange = document.getElementById('drop-glass') as HTMLInputElement | null
+  const glassVal = document.getElementById('drop-glass-val')
+  const shadowRange = document.getElementById('drop-vfx-shadow') as HTMLInputElement | null
+  const shadowVal = document.getElementById('drop-vfx-shadow-val')
+  const satRange = document.getElementById('drop-sat') as HTMLInputElement | null
+  const satVal = document.getElementById('drop-sat-val')
+
+  const syncGlassUi = () => {
+    if (glassRange) glassRange.value = String(glassPct)
+    if (glassVal) glassVal.textContent = `${glassPct}%`
+  }
+  const syncShadowUi = () => {
+    if (shadowRange) shadowRange.value = String(vfxShadowPct)
+    if (shadowVal) shadowVal.textContent = `${vfxShadowPct}%`
+  }
+  const syncSatUi = () => {
+    if (satRange) satRange.value = String(satPct)
+    if (satVal) satVal.textContent = `${satPct}%`
+  }
+  syncGlassUi()
+  syncShadowUi()
+  syncSatUi()
+
+  if (glassRange) {
+    glassRange.addEventListener('input', () => {
+      glassPct = parseInt(glassRange.value, 10)
+      syncGlassUi()
+      persistLighting()
+    })
+  }
+  if (shadowRange) {
+    shadowRange.addEventListener('input', () => {
+      vfxShadowPct = parseInt(shadowRange.value, 10)
+      syncShadowUi()
+      persistLighting()
+    })
+  }
+  if (satRange) {
+    satRange.addEventListener('input', () => {
+      satPct = parseInt(satRange.value, 10)
+      syncSatUi()
+      persistLighting()
+    })
+  }
+
+  attachLightDial()
 
   const bgTextEl = document.getElementById('bg-text') as HTMLTextAreaElement | null
   const bgFontRange = document.getElementById(
@@ -518,7 +747,8 @@ function main() {
       dropCountRange.max = String(MAX_DROPS)
       dropCountRange.value = String(n)
     }
-    if (dropCountVal) dropCountVal.textContent = `${n}개`
+    if (dropCountVal)
+      dropCountVal.textContent = formatDropCountVal(getCurrentLang(), n)
   }
 
   ensureSimulation(canvas.width, canvas.height)
@@ -602,6 +832,7 @@ function main() {
     g.bindTexture(g.TEXTURE_2D, wet.getTexture())
 
     g.useProgram(prog)
+    syncLightingUniforms()
     g.uniform1i(uDropCount!, ub.count)
     g.uniform1i(uSelectedIdx!, getSelectedDropIndex())
     g.uniform1i(
@@ -644,6 +875,9 @@ function main() {
     }, 120)
   })
 
+  initI18nUi(() => {
+    syncDropCountUi()
+  })
   attachGuideSelfTest()
 }
 
