@@ -1,11 +1,14 @@
 import {
+  clampDropSizeJitterPct,
   clampDropSizeScale,
   DEFAULT_DROP_COUNT,
+  DEFAULT_DROP_SIZE_JITTER_PCT,
   DEFAULT_DROP_SIZE_SCALE,
   DROP_SIZE_SCALE_MAX,
   DROP_SIZE_SCALE_MIN,
   ensureSimulation,
   getDropCount,
+  getDropSizeJitterPct,
   getDropSizeScale,
   getDropUniformBatch,
   getSelectedDropIndex,
@@ -17,6 +20,7 @@ import {
   resetSimulation,
   resizeDropSimulation,
   setDropCount,
+  setDropSizeJitterPct,
   setDropSizeScale,
   setMoveGoalForDrop,
   stepSimulation,
@@ -289,6 +293,7 @@ function compile(
 const BG_TEXT_STORAGE_KEY = 'kimchang-newspaper-text'
 const BG_FONT_STORAGE_KEY = 'kimchang-newspaper-font-px'
 const DROP_SIZE_STORAGE_KEY = 'kimchang-drop-size-scale'
+const DROP_SIZE_JITTER_STORAGE_KEY = 'kimchang-drop-size-jitter-pct'
 const DROP_COUNT_STORAGE_KEY = 'kimchang-drop-count'
 const LIGHT_DEG_STORAGE_KEY = 'kimchang-light-deg'
 const GLASS_PCT_STORAGE_KEY = 'kimchang-glass-pct'
@@ -346,6 +351,14 @@ function readStoredDropScale(): number {
   const n = parseFloat(s)
   if (Number.isNaN(n)) return DEFAULT_DROP_SIZE_SCALE
   return clampDropSizeScale(n)
+}
+
+function readStoredDropSizeJitterPct(): number {
+  const s = localStorage.getItem(DROP_SIZE_JITTER_STORAGE_KEY)
+  if (s == null) return DEFAULT_DROP_SIZE_JITTER_PCT
+  const n = parseInt(s, 10)
+  if (Number.isNaN(n)) return DEFAULT_DROP_SIZE_JITTER_PCT
+  return clampDropSizeJitterPct(n)
 }
 
 function readStoredFontPx(): number {
@@ -766,6 +779,7 @@ function main() {
   }
 
   setDropSizeScale(readStoredDropScale())
+  setDropSizeJitterPct(readStoredDropSizeJitterPct())
   setDropCount(readStoredDropCount())
 
   const dropSizeRange = document.getElementById(
@@ -813,6 +827,54 @@ function main() {
         const cur = Math.round(getDropSizeScale() * 100)
         const delta = we.deltaY > 0 ? -2 : 2
         applyDropSizePercent(cur + delta)
+      },
+      { passive: false },
+    )
+  }
+
+  const dropJitterRange = document.getElementById(
+    'drop-jitter',
+  ) as HTMLInputElement | null
+  const dropJitterVal = document.getElementById('drop-jitter-val')
+  const dropJitterRow = document.getElementById('drop-jitter-row')
+
+  const syncDropJitterUi = () => {
+    const j = getDropSizeJitterPct()
+    if (dropJitterRange) {
+      dropJitterRange.min = '0'
+      dropJitterRange.max = '100'
+      dropJitterRange.value = String(j)
+    }
+    if (dropJitterVal) dropJitterVal.textContent = `${j}%`
+  }
+
+  const applyDropJitterPercent = (pct: number) => {
+    setDropSizeJitterPct(clampDropSizeJitterPct(pct))
+    try {
+      localStorage.setItem(DROP_SIZE_JITTER_STORAGE_KEY, String(getDropSizeJitterPct()))
+    } catch {
+      /* ignore */
+    }
+    syncDropJitterUi()
+  }
+
+  syncDropJitterUi()
+
+  if (dropJitterRange) {
+    dropJitterRange.addEventListener('input', () => {
+      applyDropJitterPercent(parseInt(dropJitterRange.value, 10))
+    })
+  }
+
+  if (dropJitterRow) {
+    dropJitterRow.addEventListener(
+      'wheel',
+      (e: Event) => {
+        const we = e as WheelEvent
+        we.preventDefault()
+        const cur = getDropSizeJitterPct()
+        const delta = we.deltaY > 0 ? -3 : 3
+        applyDropJitterPercent(cur + delta)
       },
       { passive: false },
     )
@@ -966,6 +1028,7 @@ function main() {
 
   initI18nUi(() => {
     syncDropCountUi()
+    syncDropJitterUi()
   })
   attachGuideSelfTest()
 }

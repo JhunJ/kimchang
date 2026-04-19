@@ -78,6 +78,40 @@ export function getDropSizeScale(): number {
   return dropSizeScale
 }
 
+/** 0~100 — 클수록 방울마다 기본 반경 대비 임의 크기 편차가 커짐 */
+export const MIN_DROP_SIZE_JITTER_PCT = 0
+export const MAX_DROP_SIZE_JITTER_PCT = 100
+export const DEFAULT_DROP_SIZE_JITTER_PCT = 0
+
+let dropSizeJitterPct = DEFAULT_DROP_SIZE_JITTER_PCT
+
+export function clampDropSizeJitterPct(n: number): number {
+  return clamp(
+    Math.round(n),
+    MIN_DROP_SIZE_JITTER_PCT,
+    MAX_DROP_SIZE_JITTER_PCT,
+  )
+}
+
+export function setDropSizeJitterPct(n: number) {
+  dropSizeJitterPct = clampDropSizeJitterPct(n)
+}
+
+export function getDropSizeJitterPct(): number {
+  return dropSizeJitterPct
+}
+
+/** 방울 인덱스별 안정적인 배율(프레임마다 동일) — 슬라이더가 클수록 ±편차 확대 */
+function dropSizeJitterMultiplier(dropIndex: number): number {
+  const j = dropSizeJitterPct / 100
+  if (j < 1e-6) return 1
+  const u = Math.sin((dropIndex + 1) * 12.9898 + 78.233) * 43758.5453123
+  const r = u - Math.floor(u)
+  const v = r * 2 - 1
+  const spread = 0.48 * j
+  return clamp(1 + v * spread, 0.5, 1.85)
+}
+
 function computeDropRadiusPx(height: number): number {
   const base = clamp(height * 0.046, 36, 72)
   const scaled = base * dropSizeScale
@@ -598,8 +632,9 @@ function fillUniformsForDrop(
 
   const cosA = Math.cos(-angS)
   const sinA = Math.sin(-angS)
-  const rx = dropRadiusPx * d.stretchSmooth
-  const ry = dropRadiusPx / Math.sqrt(d.stretchSmooth)
+  const jm = dropSizeJitterMultiplier(dropIndex)
+  const rx = dropRadiusPx * d.stretchSmooth * jm
+  const ry = (dropRadiusPx / Math.sqrt(d.stretchSmooth)) * jm
   const mn = Math.min(rx, ry)
 
   const weLike = (speed * speed * dropRadiusPx) / 2.8e6

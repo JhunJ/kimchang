@@ -39,6 +39,9 @@ const KO: Dict = {
   labelDropSize: '물방울 크기',
   titleDropCount: '슬라이더 또는 이 줄에서 마우스 휠로 물방울 개수 (최대 64개)',
   labelDropCount: '물방울 개수',
+  titleDropJitterRow:
+    '클수록 방울마다 임의 크기 편차가 커짐 (0이면 모두 동일 비율)',
+  labelDropJitter: '크기 분산',
   hint: '설정은 이 기기에 저장됩니다. 슬라이더 줄을 손가락으로 밀거나(모바일), PC에서는 휠로 미세 조정할 수 있습니다.',
   guideSummary: '상세 안내 · 김창열 · 사용법',
   expandClosed: '▼ 펼치기',
@@ -106,6 +109,9 @@ const EN: Dict = {
   labelDropSize: 'Droplet size',
   titleDropCount: 'Slider or wheel: number of droplets (max 64)',
   labelDropCount: 'Droplet count',
+  titleDropJitterRow:
+    'Higher = larger random size spread per droplet (0 = uniform scale)',
+  labelDropJitter: 'Size jitter',
   hint: 'Settings are saved on this device. On mobile, drag sliders; on desktop you can also use the wheel.',
   guideSummary: 'Details · Kim Tschang-yeul · Usage',
   expandClosed: '▼ Expand',
@@ -234,6 +240,11 @@ export function applyPageLanguage(lang: Lang): void {
   if (dsRow) dsRow.setAttribute('title', d.titleDropSize)
   const lds = document.querySelector('label[for="drop-size"]')
   if (lds) lds.textContent = d.labelDropSize
+
+  const djRow = document.getElementById('drop-jitter-row')
+  if (djRow) djRow.setAttribute('title', d.titleDropJitterRow)
+  const ldj = document.querySelector('label[for="drop-jitter"]')
+  if (ldj) ldj.textContent = d.labelDropJitter
 
   const dcRow = document.getElementById('drop-count-row')
   if (dcRow) dcRow.setAttribute('title', d.titleDropCount)

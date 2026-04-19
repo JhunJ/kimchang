@@ -833,6 +833,22 @@
             </div>
             <div
               class="font-size-row"
+              id="drop-jitter-row"
+              title="클수록 방울마다 크기 편차가 커짐 (0 = 동일)"
+            >
+              <label for="drop-jitter">크기 분산</label>
+              <input
+                id="drop-jitter"
+                type="range"
+                min="0"
+                max="100"
+                step="1"
+                value="0"
+              />
+              <span id="drop-jitter-val" class="font-size-val">0%</span>
+            </div>
+            <div
+              class="font-size-row"
               id="drop-count-row"
               title="슬라이더 또는 이 줄에서 마우스 휠로 물방울 개수 (최대 64개)"
             >
