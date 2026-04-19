@@ -1,4 +1,4 @@
-# 김창열 물방울 — 신문 위 WebGL 인터랙션
+# 김창열 물방울 — 신문 위 인터랙션
 
 ## 라이브 체험 (먼저 눌러 보세요)
 
@@ -15,7 +15,7 @@
 
 ## 스크린샷 (최신 UI)
 
-![김창열 물방울 WebGL 데모 — 메인 화면](public/docs/screenshot.png)
+![김창열 물방울 데모 — 메인 화면](public/docs/screenshot.png)
 
 ---
 
@@ -134,7 +134,7 @@ Runs **in the browser** with no install. (Mobile and desktop.)
 
 ## Screenshot (latest UI)
 
-![Kim Tschang-yeul water droplet WebGL demo — main screen](public/docs/screenshot.png)
+![Kim Tschang-yeul water droplet demo — main screen](public/docs/screenshot.png)
 
 ---
 

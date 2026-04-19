@@ -24,9 +24,9 @@ type Dict = Record<string, string>
 
 const KO: Dict = {
   docTitle:
-    '김창열 물방울 아트 — 신문·굴절 WebGL 인터랙션 | Kim Tschang-yeul homage',
+    '김창열 물방울 아트 — 신문·굴절 인터랙션 | Kim Tschang-yeul homage',
   skip: '상세 안내로 건너뛰기',
-  appTitle: '김창열 물방울 <span>· WebGL</span>',
+  appTitle: '김창열 물방울',
   intro: '소개·사용법',
   langAria: '언어 선택',
   stageAria: '물방울이 신문 위에 올라간 WebGL 캔버스',
@@ -94,9 +94,9 @@ const KO: Dict = {
 
 const EN: Dict = {
   docTitle:
-    'Kim Tschang-yeul — Water drops on newsprint (WebGL) | Interactive homage',
+    'Kim Tschang-yeul — Water drops on newsprint | Interactive homage',
   skip: 'Skip to details',
-  appTitle: 'Kim Tschang-yeul <span>· WebGL</span>',
+  appTitle: 'Kim Tschang-yeul',
   intro: 'About · How to use',
   langAria: 'Language',
   stageAria: 'WebGL canvas: water droplets on newspaper texture',
