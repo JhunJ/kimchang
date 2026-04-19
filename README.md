@@ -111,7 +111,9 @@ npm run preview       # 빌드 미리보기
 
 ## 라이선스
 
-별도 라이선스 파일이 없습니다. 필요하면 저장소에 `LICENSE`를 추가하세요.
+이 저장소의 소스 코드·문서 등은 **저작권자 JhunJ에게 귀속**하며, **[All Rights Reserved](LICENSE)** 입니다. 사전 서면 허가 없이 복제·수정·배포·상업적 이용 등을 할 수 없습니다. 자세한 조건은 루트의 [`LICENSE`](LICENSE) 파일을 따릅니다.
+
+> **참고:** GitHub **공개 저장소**에 올라와 있어도, 위 조건 없이 타인에게 이용을 허락하는 것은 아닙니다. 코드가 **보이는 것**과 **법적으로 이용 가능한 것**은 다릅니다.
 
 ---
 
@@ -228,4 +230,6 @@ You can also use the **mouse wheel** on the slider rows (desktop) to tweak font 
 
 ## License
 
-No `LICENSE` file is included yet; add one to the repo if you need an explicit terms.
+All **source code and documentation** in this repository are **proprietary** and **[All Rights Reserved](LICENSE)** by **JhunJ**. You may not copy, modify, distribute, or use the work for commercial or other purposes **without prior written permission**. See the [`LICENSE`](LICENSE) file in the repository root.
+
+> **Note:** A **public** GitHub repository does **not** grant others a license to use the code. **Visibility** is not the same as **permission**.
