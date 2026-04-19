@@ -199,11 +199,11 @@ You can also use the **mouse wheel** on the slider rows (desktop) to tweak font 
 
 ## Relationship to Kim Tschang-yeul’s art
 
-**Kim Tschang-yeul** (also spelled **Kim Tschang-yeul**, etc.) is widely known for meticulous **water droplets** on grounds that often include **newsprint, Hanja, and calligraphy**. This repository is a **digital homage**—it does not try to reproduce physical paint, scale, or brushwork.
+**Kim Tschang-yeul** (Hangul: 김창열; Hanja: 金昌烈) is widely known for meticulous **water droplets** on grounds that often include **newsprint, Hanja, and calligraphy**. This repository is a **digital homage**—it does not try to reproduce physical paint, scale, or brushwork.
 
 ### Links
 
-- [Korean Wikipedia — Kim Chang-yeol (painter)](https://ko.wikipedia.org/wiki/%EA%B9%80%EC%B0%BD%EC%97%B4_(%ED%99%94%EA%B0%80))
+- [Korean Wikipedia — 김창열 (Kim Tschang-yeul)](https://ko.wikipedia.org/wiki/%EA%B9%80%EC%B0%BD%EC%97%B4_(%ED%99%94%EA%B0%80))
 - [English Wikipedia — Kim Tschang-yeul](https://en.wikipedia.org/wiki/Kim_Tschang-yeul)
 - [Kim Tschang-yeul Art Museum (Jeju)](https://kimtschang-yeul.jeju.go.kr/)
 - [National Museum of Modern and Contemporary Art (MMCA)](https://www.mmca.go.kr/) — useful for collection and exhibition search
